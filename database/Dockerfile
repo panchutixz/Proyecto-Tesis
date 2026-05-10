@@ -1,0 +1,5 @@
+FROM postgres:17-alpine
+ENV POSTGRES_DB=Proyecto-Tesis
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=huachimingo
+EXPOSE 5432
