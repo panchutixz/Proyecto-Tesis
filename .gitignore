@@ -1,0 +1,17 @@
+# Dependencias de Node (Frontend y Backend)
+**/node_modules/
+**/dist/
+**/build/
+
+# Variables de entorno (Contraseñas y Configuración sensible)
+.env
+**/.env
+
+# Logs y Archivos de sistema
+**/npm-debug.log*
+**/yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerprod

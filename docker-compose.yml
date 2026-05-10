@@ -1,0 +1,51 @@
+services:
+  db:
+    build: ./database
+    container_name: db-tesis
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_NAME:-Proyecto-Tesis}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-huachimingo} # <--- Tu contraseña aquí
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-Proyecto-Tesis}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: backend-tesis
+    environment:
+      # El backend usa 'db' como host porque es el nombre del servicio arriba
+      - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-huachimingo}@db:5432/${DB_NAME:-Proyecto-Tesis}
+      - PORT=${BACKEND_PORT:-3000}
+    ports:
+      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend_net
+      - frontend_net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend-tesis
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    networks:
+      - frontend_net
+
+networks:
+  frontend_net:
+  backend_net:
+
+volumes:
+  postgres_data:
