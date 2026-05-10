@@ -1,5 +1,17 @@
-# Despliegue del Proyecto
-1. Clonar el repositorio.
-2. (Opcional) Crear un archivo `.env` basado en `.env.example`.
-3. Ejecutar `docker compose up -d`.
-4. Acceder al frontend en `http://localhost:8080`.
+# Proyecto Tesis - Entrega Docker Compose
+
+Este proyecto utiliza Docker para ejecutar los servicios de Frontend, Backend y Base de Datos. El despliegue está configurado para funcionar de manera automática con valores por defecto razonables, cumpliendo con los requisitos de la entrega.
+
+## Requisitos Previos
+* Docker Desktop instalado y en ejecución.
+
+## Instrucciones de Despliegue
+
+1. **Clonar el repositorio.**
+2. **Levantar el proyecto:**
+   Abra una terminal (git bash o powershell) en la raíz de la carpeta del proyecto y ejecute:
+  
+   "docker compose up"
+3. Ingrese a alguna de las direcciones correspondientes:
+    http://localhost:3000
+    http://localhost:8080
