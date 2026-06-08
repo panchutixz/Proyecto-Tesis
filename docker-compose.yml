@@ -21,9 +21,15 @@ services:
     build: ./backend
     container_name: backend-tesis
     environment:
-      # El backend usa 'db' como host porque es el nombre del servicio arriba
-      - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-huachimingo}@db:5432/${DB_NAME:-Proyecto-Tesis}
+      - HOST=0.0.0.0
       - PORT=${BACKEND_PORT:-3000}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-huachimingo}
+      - DATABASE=${DB_NAME:-Proyecto-Tesis}
+      - JWT_SECRET=fknoljifyjfcyxloloqdsjgctvtvnvqlpsmftlnvvuvyteamcmiiggtwzeeedhofpnpuwfssxfpxiadmfyulscglhciaufssmrttolhulkiyqygmbcutzthunckqzaox     
+      - COOKIE_KEY=lvfvdxywuvkmggktdvngonbmuqcmhwsauqaupxxcdwangmuzbkammxtjtsxlqiigbghwdwxjregqoaoudsgpwjvrtoeesubhclyalwfdmhmdhiftpepkoxzigshfggdy
     ports:
       - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
     depends_on:

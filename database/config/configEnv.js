@@ -17,3 +17,5 @@ export const DB_PASSWORD = process.env.DB_PASSWORD;
 export const DATABASE = process.env.DATABASE;
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const cookieKey = process.env.COOKIE_KEY;
+
+export const DATABASE_URL = process.env.DATABASE_URL;

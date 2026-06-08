@@ -10,6 +10,6 @@ ENV POSTGRES_PASSWORD=huachimingo
 
 # Si tienes un archivo .sql con la estructura de tu base de datos,
 # descomenta la línea de abajo para que se cree automáticamente al iniciar.
-COPY init.sql /docker-entrypoint-initdb.d/
+# COPY init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
