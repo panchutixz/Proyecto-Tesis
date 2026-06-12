@@ -32,7 +32,7 @@ const AccesoDenegado = () => {
         
         {/* Descripción */}
         <p className="text-gray-400 text-sm mb-6 leading-relaxed px-2">
-          No tienes permiso para acceder sin iniciar sesión. Por favor, inicia sesión para continuar.
+          No tienes permiso para acceder a esta sección sin iniciar sesión o no tienes los permisos necesarios. 
         </p>
         
         {/* Alerta del Contador */}

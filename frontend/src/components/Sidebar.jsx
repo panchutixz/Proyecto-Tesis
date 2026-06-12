@@ -73,9 +73,12 @@ const Sidebar = () => {
 
           {/* Perfil */}
           <li>
-            <NavLink to="/profile" className="w-full block hover:bg-gray-700 p-2 rounded">
-              Perfil
-            </NavLink>
+            <button
+                onClick={() => navigate("/profile")}
+                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+             >
+               Perfil
+            </button>
           </li>
 
           {/* Espaciador para empujar el logout al fondo */}
