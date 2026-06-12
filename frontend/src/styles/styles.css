@@ -107,3 +107,65 @@ body {
 .btn-home:hover {
   background: #5568d3;
 }
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+
+.modal-container {
+  background-color: #1f2937; /* gray-800 */
+  border: 1px solid #374151; /* gray-700 */
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-width: 24rem;
+  width: 91.666667%;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.modal-text {
+  font-size: 0.875rem;
+  color: #9ca3af; 
+  margin-bottom: 1.5rem;
+}
+
+
+.modal-btn-cancelar {
+  background-color: #374151;
+  color: #ffffff;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.modal-btn-cancelar:hover {
+  background-color: #4b5563;
+}
+
+.modal-btn-confirmar {
+  background-color: #dc2626; 
+  color: #ffffff;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.modal-btn-confirmar:hover {
+  background-color: #b91c1c;
+}

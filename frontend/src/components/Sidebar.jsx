@@ -1,17 +1,25 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../services/auth.service";
 
+
 const Sidebar = () => {
   const navigate = useNavigate();
+  
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const user = JSON.parse(sessionStorage.getItem("usuario")) || null;
   const displayName = user?.nombre || user?.name || user?.username || "Usuario";
   const userRole = user?.rol || user?.role || "";
 
-  const handleLogout = () => {
+  // Se ejecuta solo si el usuario confirma el cierre en el modal
+  const handleLogoutConfirm = () => {
     try {
-      logout();
-      navigate("/auth");
+      logout(); // Remueve cookies ('jwt-auth') y sessionStorage ('usuario')
+      
+      // Al salir voluntariamente, destruimos el estado síncronamente 
+      // y mandamos al usuario directo a la raíz del Login
+      window.location.replace("/");
     } catch (error) {
       console.error("Error al cerrar sesión", error);
     }
@@ -58,23 +66,25 @@ const Sidebar = () => {
                 onClick={() => navigate("/usuarios")}
                 className="w-full text-left hover:bg-gray-700 p-2 rounded"
              >
-              Usuarios
+               Usuarios
             </button>
           </li>
           )}
+
           {/* Perfil */}
           <li>
             <NavLink to="/profile" className="w-full block hover:bg-gray-700 p-2 rounded">
               Perfil
             </NavLink>
           </li>
+
           {/* Espaciador para empujar el logout al fondo */}
           <li className="flex-grow" />
 
           {/* Cerrar Sesión */}
           <li>
             <button
-              onClick={handleLogout}
+              onClick={() => setShowLogoutModal(true)} // Abre el modal personalizado
               className="w-full text-left hover:bg-red-700 bg-red-600 p-2 rounded"
             >
               Cerrar Sesión
@@ -82,6 +92,35 @@ const Sidebar = () => {
           </li>
         </ul>
       </nav>
+
+      {/* MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN */}
+      {showLogoutModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="text-4xl mb-3">⚠️</div>
+            <h3 className="modal-title">¿Desea cerrar sesión?</h3>
+            <p className="modal-text">
+              Se cerrará tu sesión activa en este dispositivo. Tendrás que autenticarte de nuevo para ingresar.
+            </p>
+            
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setShowLogoutModal(false)} // Cancela y cierra el modal
+                className="modal-btn-cancelar"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleLogoutConfirm} // Destruye sesión y redirige
+                className="modal-btn-confirmar"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

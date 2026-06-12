@@ -5,6 +5,7 @@ import Home from '@pages/Home';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
+import AccesoDenegado from '@components/AccesoDenegado'; // <-- 1. IMPORTA TU COMPONENTE DE BLOQUEO
 import '@styles/styles.css';
 import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
@@ -26,21 +27,27 @@ const router = createBrowserRouter([
         path: '/auth',
         element: <Login />
       },
+      
       {
-        path: '/auth/register',
-        element: <Register />
+        path: '/acceso-denegado',
+        element: <AccesoDenegado />
       },
+
       {
         path: "/usuarios",
         element: (
-          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
+          <ProtectedRoute allowedRoles={["administrador", "supervisor", "encargado" ]}>
             <Usuarios />
           </ProtectedRoute>
         ),
       },
       {
         path: '/home',
-        element: <Home />
+        element: (
+          <ProtectedRoute> 
+            <Home />
+          </ProtectedRoute>
+        ),
       },
     ]
   }
