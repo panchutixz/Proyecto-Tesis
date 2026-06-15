@@ -42,7 +42,10 @@ const Users = () => {
   return (
     <div className="users-page">
       <div className="users-header">
-        <h2>Lista de Usuarios</h2>
+        <div className="users-title-wrap">
+          <h2>LISTADO DE PERSONAL</h2>
+          <p className="users-subtitle">— todos los trabajadores</p>
+        </div>
         {authUser?.rol === 'Administrador' && (
           <button className="users-addbtn">
             Añadir Usuario
@@ -50,7 +53,8 @@ const Users = () => {
         )}
       </div>
 
-      <table className="users-table">
+      <div className="users-table-wrapper">
+        <table className="users-table">
         <thead>
           <tr>
             <th>Rut</th>
@@ -97,7 +101,8 @@ const Users = () => {
             </tr>
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 };
