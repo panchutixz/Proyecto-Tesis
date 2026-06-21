@@ -12,12 +12,11 @@ export async function loginUser(email, password) {
     throw new Error("Credenciales incorrectas");
   }
 
-  // Construir payload incluyendo rol y bicicleteroId si existen en el usuario
+  // Construir payload incluyendo rol
   const payload = {
     sub: user.id,
     email: user.email,
     rol: user.rol ?? user.role ?? null,
-    bicicleteroId: user.bicicletero_id ?? user.bicicleteroId ?? null,
   };
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 

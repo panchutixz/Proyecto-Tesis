@@ -1,7 +1,8 @@
 /* Layout del contenedor */
 .users-page {
-  max-width: 1100px;
-  margin: 28px 24px;
+  max-width: 1300px;
+  width: calc(100% - 48px);
+  margin: 28px auto;
   padding: 28px 32px;
   background: #eaf4f7;
   border-radius: 4px;

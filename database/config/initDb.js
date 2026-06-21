@@ -1,7 +1,7 @@
 "use strict";
 
-import UserEntity from "../../backend/src/entities/user.entity.js";
-import { encryptPassword } from "../../backend/src/handlers/bcrypt.helper.js";
+import UserEntity from "../entities/user.entity.js";
+import { encryptPassword } from "../handlers/bcrypt.helper.js";
 import { AppDataSource } from "./configDb.js";
 
 export async function createusers(){
@@ -18,6 +18,8 @@ export async function createusers(){
                 email: "admin@gmail.com",
                 rol: "Administrador",
                 telefono: "+56912345678",
+                estado: "Activo",
+                jornada: "Administrativa",
                 password: await encryptPassword("admin123"),
             },
             {
@@ -27,6 +29,8 @@ export async function createusers(){
                 email: "supervisor@gmail.com",
                 rol: "Supervisor",
                 telefono: "+56987654321",
+                estado: "Activo",
+                jornada: "Administrativa",
                 password: await encryptPassword("supervisor123")
             },
             {
@@ -36,15 +40,30 @@ export async function createusers(){
                 email: "encargado@gmail.com",
                 rol: "Encargado",
                 telefono: "+56911223344",
+                estado: "Activo",
+                jornada: "Administrativa",
                 password: await encryptPassword("encargado123")
             },
             {
                 rut: "14.258.369-4",
                 nombre: "Empleado",
                 apellido: "Maturraga",
-                email: "empleado@gmail.com",
+                email: "empleado1@gmail.com",
                 rol: "Empleado",
                 telefono: "+56944332211",
+                estado: "Licencia",
+                jornada: "Mañana",
+                password: await encryptPassword("empleado123")
+            },
+            {
+                rut: "13.158.379-K",
+                nombre: "Empleado",
+                apellido: "Alessandri",
+                email: "empleado2@gmail.com",
+                rol: "Empleado",
+                telefono: "+56944332211",
+                estado: "Activo",
+                jornada: "Tarde",
                 password: await encryptPassword("empleado123")
             },
             {
@@ -54,6 +73,8 @@ export async function createusers(){
                 email: "bodeguero@gmail.com",
                 rol: "Bodeguero",
                 telefono: "+56955667788",
+                estado: "Activo",
+                jornada: "Administrativa",
                 password: await encryptPassword("bodeguero123")
             },
 

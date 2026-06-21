@@ -117,6 +117,24 @@ apellido: Joi.string()
       "string.empty": "El teléfono es obligatorio.",
       "string.pattern.base": "El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.",
     }),
+    estado: Joi.string()
+    .valid("Activo", "Inactivo", "Licencia")
+    .allow(null)
+    .messages({
+      "any.only": "El estado debe ser Activo, Inactivo o Licencia.",
+    }),
+    jornada: Joi.string()
+    .valid("Mañana", "Tarde", "Administrativa")
+    .allow(null)
+    .messages({
+      "any.only": "La jornada debe ser Mañana, Tarde o Administrativa.",
+}),
+jornada: Joi.string()
+    .valid("Mañana", "Tarde", "Administrativa")
+    .allow(null)
+    .messages({
+      "any.only": "La jornada debe ser Mañana, Tarde o Administrativa.",
+    }),
 })
   .unknown(false)
   .messages({
@@ -146,7 +164,7 @@ export async function validateRegister(data, checkEmailExists) {
   if (role === "empleado" || role === "bodeguero" || role === "encargado" || role === "supervisor" || role === "administrador" ) {
     if (!email.endsWith("@gmail.com")) {
       throw Object.assign(
-        new Error("Para el rol empleado el correo debe terminar en @gmail.com."),
+        new Error(`Para este rol, el correo debe terminar en @gmail.com.`),
         { code: "VALIDATION_ERROR" }
       );
     }

@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 export async function register(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { email, password, nombre, rol, apellido, rut, telefono } = req.body;
+    const { email, password, nombre, rol, apellido, rut, telefono, estado, jornada } = req.body;
     const { error } = registerValidation.validate(req.body);
     if (error) return res.status(400).json({ message: error.message });
 
@@ -35,7 +35,9 @@ export async function register(req, res) {
       nombre,
       rol: rol || "Empleado",
       apellido,
-      telefono
+      telefono,
+      estado: estado || "Activo",
+      jornada
     });
     await userRepository.save(newUser);
     return res.status(201).json({ message: "Usuario registrado exitosamente" });
@@ -47,7 +49,7 @@ export async function register(req, res) {
 
 export async function createUser(data) {
   const userRepository = AppDataSource.getRepository(UserEntity);
-  const { email, password, nombre, rol, apellido, rut, telefono } = data;
+  const { email, password, nombre, rol, apellido, rut, telefono, estado, jornada } = data;
 
  
   const { error } = registerValidation.validate(data);
@@ -80,7 +82,9 @@ export async function createUser(data) {
     nombre,
     rol: rol || "Empleado",
     apellido,
-    telefono
+    telefono,
+    estado: estado || "Activo",
+    jornada
   });
 
   const saved = await userRepository.save(user);

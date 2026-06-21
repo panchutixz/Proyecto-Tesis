@@ -10,8 +10,8 @@ export async function getUsers(req, res) {
   const usuarioAutenticado = req.user;
   const rol = usuarioAutenticado?.rol?.toLowerCase();
 
-  if (rol !== "administrador" && rol !== "supervisor" && rol !== "encargado") {
-    return res.status(403).json({ message: "Acceso denegado. Solo administradores, supervisores y encargados pueden ver usuarios." });
+  if (rol !== "administrador") {
+    return res.status(403).json({ message: "Acceso denegado. Solo administrador puede ver usuarios." });
   }
 
   try {
@@ -73,7 +73,7 @@ export async function createUser(req, res) {
 
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
-    const { rut, nombre, apellido, rol , password, email, telefono } = req.body;
+    const { rut, nombre, apellido, rol , password, email, telefono, estado, jornada } = req.body;
 
     const rolesPermitidos = ["Empleado"];
     if (!rolesPermitidos.includes(rol.toLowerCase())) {
@@ -108,7 +108,9 @@ export async function createUser(req, res) {
       rol,
       password: hashedPassword,
       email,
-      telefono
+      telefono,
+      estado: estado || "Activo",
+      jornada: jornada || "Administrativa"
     });
 
     const savedUser = await userRepository.save(newUser);
@@ -124,7 +126,7 @@ export async function updateUserById(req, res) {
   try {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { id } = req.params;
-    const { nombre, apellido, rol, email, telefono, rut } = req.body;
+    const { nombre, apellido, rol, email, telefono, rut, estado, jornada } = req.body;
 
     const usuarioAutenticado = req.user;
     const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
@@ -150,6 +152,22 @@ export async function updateUserById(req, res) {
     // Un administrador no puede cambiar su propio rol
     if (rolAutenticado === "administrador" && user.rol?.toLowerCase() === "administrador" && rol && rol.toLowerCase() !== "administrador") {
       return res.status(403).json({ message: "Acceso denegado. Un administrador no puede modificar su propio rol." });
+    }
+
+    //el administrador no puede cambiar su propio estado a inactivo o con licencia
+    if (rolAutenticado === "administrador" && user.rol?.toLowerCase() === "administrador" && estado && (estado.toLowerCase() === "inactivo" || estado.toLowerCase() === "licencia")) {
+      return res.status(403).json({ message: "Acceso denegado. Un administrador no puede cambiar su propio estado a inactivo o con licencia." });
+    }
+    const isSelfEdit = usuarioAutenticado.id === user.id;
+    const restrictedSelfRoles = ["administrador", "supervisor", "encargado"];
+    const isRestrictedSelf = isSelfEdit && restrictedSelfRoles.includes(rolAutenticado);
+
+    if (isRestrictedSelf && jornada && jornada.toLowerCase() !== "administrativa") {
+      return res.status(403).json({ message: "Acceso denegado. No puedes cambiar tu jornada laboral; debe ser Administrativa." });
+    }
+
+    if (isRestrictedSelf && estado && estado.toLowerCase() === "inactivo") {
+      return res.status(403).json({ message: "Acceso denegado. No puedes cambiar tu estado a Inactivo." });
     }
  
     // Validaciones de duplicados
@@ -210,6 +228,11 @@ export async function deleteUserById(req, res) {
     const idNum = parseInt(id, 10);
     if (Number.isNaN(idNum)) {
       return res.status(400).json({ message: "ID de usuario inválido." });
+    }
+
+    const isSelfDelete = ["administrador", "encargado", "supervisor"].includes(rolAutenticado) && idNum === usuarioAutenticado.id;
+    if (isSelfDelete) {
+      return res.status(403).json({ message: "Acceso denegado. No puedes eliminarte a ti mismo." });
     }
 
     const user = await userRepository.findOne({ where: { id: idNum } });

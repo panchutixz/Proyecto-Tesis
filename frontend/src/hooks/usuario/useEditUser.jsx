@@ -22,15 +22,33 @@ async function editUserPopup(user) {
         <label for="swal2-rol">Rol</label>
         <select id="swal2-rol" class="swal2-input swal2-select">
           <option value="" disabled>Seleccione el rol</option>
-          <option value="Estudiante" ${user.rol === "Estudiante" ? "selected" : ""}>Estudiante</option>
-          <option value="Funcionario" ${user.rol === "Funcionario" ? "selected" : ""}>Funcionario</option>
-          <option value="Académico" ${user.rol === "Académico" ? "selected" : ""}>Académico</option>
-          <option value="Guardia" ${user.rol === "Guardia" ? "selected" : ""}>Guardia</option>
+          <option value="Empleado" ${user.rol === "Empleado" ? "selected" : ""}>Empleado</option>
+          <option value="Encargado" ${user.rol === "Encargado" ? "selected" : ""}>Encargado</option>
+          <option value="Supervisor" ${user.rol === "Supervisor" ? "selected" : ""}>Supervisor</option>
+          <option value="Bodeguero" ${user.rol === "Bodeguero" ? "selected" : ""}>Bodeguero</option>
         </select>
       </div>
       <div>
         <label for="swal2-telefono">Teléfono</label>
         <input id="swal2-telefono" class="swal2-input" value="${user.telefono || ""}" placeholder="Teléfono del usuario">
+      </div>
+      <div>
+        <label for="swal2-jornada">Jornada</label>
+        <select id="swal2-jornada" class="swal2-input swal2-select">
+          <option value="" disabled>Seleccione la jornada</option>
+          <option value="Mañana" ${user.jornada === "Mañana" ? "selected" : ""}>Mañana</option>
+          <option value="Tarde" ${user.jornada === "Tarde" ? "selected" : ""}>Tarde</option>
+          <option value="Administrativa" ${user.jornada === "Administrativa" ? "selected" : ""}>Administrativa</option>
+        </select>
+      </div>
+      <div>
+        <label for ="swal2-estado">Estado</label>
+        <select id="swal2-estado" class="swal2-input swal2-select">
+          <option value="" disabled>Seleccione el estado</option>
+          <option value="Activo" ${user.estado === "Activo" ? "selected" : ""}>Activo</option>
+          <option value="Licencia" ${user.estado === "Licencia" ? "selected" : ""}>Licencia</option>
+          <option value="Inactivo" ${user.estado === "Inactivo" ? "selected" : ""}>Inactivo</option>
+        </select>
       </div>
     `,
     focusConfirm: false,
@@ -68,13 +86,28 @@ async function editUserPopup(user) {
       const email = document.getElementById("swal2-email").value.trim();
       const rol = document.getElementById("swal2-rol").value;
       const telefono = document.getElementById("swal2-telefono").value.trim();
+      const jornada = document.getElementById("swal2-jornada").value;
+      const estado = document.getElementById("swal2-estado").value;
+      const currentUser = JSON.parse(sessionStorage.getItem("usuario"));
+      const isSelfEdit = currentUser && currentUser.id === user.id;
+      const isRestrictedSelf = isSelfEdit && ["Administrador", "Supervisor", "Encargado"].includes(currentUser?.rol);
 
-      if (!nombre || !apellido || !email || !rol || !telefono) {
+      if (!nombre || !apellido || !email || !rol || !telefono || !jornada || !estado) {
         Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
         return false;
       }
 
-      return { nombre, apellido, email, rol, telefono};
+      if (isRestrictedSelf && jornada !== "Administrativa") {
+        Swal.showValidationMessage("No puedes cambiar tu jornada laboral. Debe permanecer como Administrativa.");
+        return false;
+      }
+
+      if (isRestrictedSelf && estado === "Inactivo") {
+        Swal.showValidationMessage("No puedes cambiar tu estado a Inactivo.");
+        return false;
+      }
+
+      return { nombre, apellido, email, rol, telefono, jornada, estado};
     },
   });
 

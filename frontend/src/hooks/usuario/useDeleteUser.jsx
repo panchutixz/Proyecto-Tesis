@@ -48,7 +48,14 @@ export const useDeleteUser = (fetchUsers) => {
       }
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
-      await confirmError();
+      await Swal.fire({
+        title: "No se pudo eliminar el usuario",
+        icon: "error",
+        text: error.message || "Error en el servidor. Revisa los datos e inténtalo nuevamente.",
+        confirmButtonText: "Aceptar",
+        timer: 2000,
+        timerProgressBar: true,
+      });
     }
   };
 

@@ -47,7 +47,7 @@ const Users = () => {
           <p className="users-subtitle">— todos los trabajadores</p>
         </div>
         {authUser?.rol === 'Administrador' && (
-          <button className="users-addbtn">
+          <button className="users-addbtn" onClick={handleCreateUser}>
             Añadir Usuario
           </button>
         )}
@@ -63,6 +63,8 @@ const Users = () => {
             <th>Email</th>
             <th>Rol</th>
             <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Jornada</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -80,14 +82,19 @@ const Users = () => {
                   </span>
                 </td>
                 <td>{u.telefono}</td>
+                <td>{u.estado}</td>
+                <td>{u.jornada}</td>
                 <td>
-                  <button className="delete">
-                    Eliminar
-                  </button>
+                  {!(authUser && ["Administrador", "Supervisor", "Encargado"].includes(authUser.rol) && authUser.id === u.id) && (
+                    <button className="delete" onClick={() => handleDeleteUser(u.id)}>
+                      Eliminar
+                    </button>
+                  )}
                   {authUser?.rol === 'Administrador' && (
                     <button
                       className="edit"
                       style={{ marginLeft: "8px" }}
+                      onClick={() => handleEditUser(u.id, u)}
                     >
                       Editar
                     </button>

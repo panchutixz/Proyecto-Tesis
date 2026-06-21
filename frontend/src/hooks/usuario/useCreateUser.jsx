@@ -29,12 +29,21 @@ async function addUserPopup(){
           <label for="swal2-rol">Rol</label>
           <select id="swal2-rol" class="swal2-input swal2-select">
             <option value="" disabled selected>Seleccione el rol</option>
-            <option value="Empleado" ${user.rol === "Empleado" ? "selected" : ""}>Empleado</option>
+            <option value="Empleado">Empleado</option>
           </select>
         </div>
         <div>
           <label for="swal2-telefono">Teléfono</label>
           <input id="swal2-telefono" class="swal2-input" placeholder="Teléfono del usuario">
+        </div>
+        <div>
+          <label for="swal2-jornada">Jornada</label>
+          <select id="swal2-jornada" class="swal2-input swal2-select">
+            <option value="" disabled selected>Seleccione la jornada</option>
+            <option value="Mañana">Mañana</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Administrativa">Administrativa</option>
+          </select>
         </div>
     `,
     focusConfirm: false,
@@ -77,13 +86,14 @@ async function addUserPopup(){
         const password = document.getElementById("swal2-password").value;
         const rol = document.getElementById("swal2-rol").value;
         const telefono = document.getElementById("swal2-telefono").value.trim();
+        const jornada = document.getElementById("swal2-jornada").value;
 
-        if(!rut || !nombre || !apellido || !email || !rol || !password ){
+        if(!rut || !nombre || !apellido || !email || !rol || !password || !jornada){
             Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
             return false;
         }
 
-        return {rut, nombre, apellido, email, password, rol, telefono};
+        return {rut, nombre, apellido, email, password, rol, telefono, jornada};
     }, 
     });
     if(formValues){
@@ -94,7 +104,8 @@ async function addUserPopup(){
             email: formValues.email,
             password: formValues.password,
             rol: formValues.rol,
-            telefono: formValues.telefono
+            telefono: formValues.telefono,
+            jornada: formValues.jornada
         };
     }
 
