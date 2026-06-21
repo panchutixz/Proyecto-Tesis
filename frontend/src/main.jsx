@@ -6,6 +6,7 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import AccesoDenegado from '@components/AccesoDenegado'; 
+import Profile from '@pages/Profile';
 import '@styles/styles.css';
 import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
@@ -13,9 +14,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { UserProvider } from '@context/UserContext';
 
-// ==========================================
-// DEFINICIÓN DE TODAS LAS RUTAS DEL SISTEMA
-// ==========================================
 const router = createBrowserRouter([
   {
     // ENVOLTURAS MAESTRAS EN LA RAÍZ COMPLETA
@@ -50,13 +48,8 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: '/profile',
-        element: (
-          // Ahora que está envuelto globalmente, ProtectedRoute funcionará sin colapsar
-          <ProtectedRoute>
-            <Error404 />
-          </ProtectedRoute>
-        )
+        path: "/profile",
+        element: <Profile />,
       },
       // B. COMPONENTES INDEPENDIENTES (A Pantalla Completa sin Sidebar)
       {
