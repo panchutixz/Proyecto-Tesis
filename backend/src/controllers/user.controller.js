@@ -130,7 +130,8 @@ export async function updateUserById(req, res) {
 
     const usuarioAutenticado = req.user;
     const rolAutenticado = usuarioAutenticado?.rol?.toLowerCase();
-    if (!usuarioAutenticado || (rolAutenticado !== "administrador")) {
+    
+    if (!usuarioAutenticado || rolAutenticado !== "administrador") {
       return res.status(403).json({ message: "Acceso denegado. Solo administradores" });
     }
 
@@ -144,33 +145,18 @@ export async function updateUserById(req, res) {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    const rolesValidos = ["Empleado", "Encargado", "Bodeguero", "Supervisor", "Administrador"];
-    if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
-      return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
-    }
-
-    // Un administrador no puede cambiar su propio rol
-    if (rolAutenticado === "administrador" && user.rol?.toLowerCase() === "administrador" && rol && rol.toLowerCase() !== "administrador") {
-      return res.status(403).json({ message: "Acceso denegado. Un administrador no puede modificar su propio rol." });
-    }
-
-    //el administrador no puede cambiar su propio estado a inactivo o con licencia
-    if (rolAutenticado === "administrador" && user.rol?.toLowerCase() === "administrador" && estado && (estado.toLowerCase() === "inactivo" || estado.toLowerCase() === "licencia")) {
-      return res.status(403).json({ message: "Acceso denegado. Un administrador no puede cambiar su propio estado a inactivo o con licencia." });
-    }
+    // Identificar si el Administrador se está editando a sí mismo
     const isSelfEdit = usuarioAutenticado.id === user.id;
-    const restrictedSelfRoles = ["administrador", "supervisor", "encargado"];
-    const isRestrictedSelf = isSelfEdit && restrictedSelfRoles.includes(rolAutenticado);
 
-    if (isRestrictedSelf && jornada && jornada.toLowerCase() !== "administrativa") {
-      return res.status(403).json({ message: "Acceso denegado. No puedes cambiar tu jornada laboral; debe ser Administrativa." });
+    // --- VALIDACIONES PARA EDICIÓN DE OTROS USUARIOS ---
+    if (!isSelfEdit) {
+      const rolesValidos = ["Empleado", "Encargado", "Bodeguero", "Supervisor", "Administrador"];
+      if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
+        return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
+      }
     }
 
-    if (isRestrictedSelf && estado && estado.toLowerCase() === "inactivo") {
-      return res.status(403).json({ message: "Acceso denegado. No puedes cambiar tu estado a Inactivo." });
-    }
- 
-    // Validaciones de duplicados
+    // --- VALIDACIONES DE DUPLICADOS (Aplica para todos) ---
     if (rut && rut !== user.rut) {
       const existingRut = await userRepository.findOne({ where: { rut } });
       if (existingRut) {
@@ -195,15 +181,26 @@ export async function updateUserById(req, res) {
       user.telefono = telefono;
     }
 
-    // Actualizar solo los campos permitidos
+    // --- ASIGNACIÓN DE CAMPOS PERMITIDOS ---
+    
+    // Campos que el administrador SIEMPRE puede editar (a otros y a sí mismo)
     user.nombre = nombre ?? user.nombre;
     user.apellido = apellido ?? user.apellido;
 
-    // El rol solo se actualiza si no es el propio administrador
-    if (!(rolAutenticado === "administrador" && usuarioAutenticado.id === user.id)) {
+    if (isSelfEdit) {
+      // Si se edita a sí mismo, se ignoran los campos críticos del body 
+      // y se fuerza a mantener el valor original que ya tiene la BD.
+      user.rol = user.rol;
+      user.jornada = user.jornada;
+      user.estado = user.estado;
+    } else {
+      // Si edita a otro usuario, se permite actualizar la gestión operativa
       user.rol = rol ?? user.rol;
+      user.jornada = jornada ?? user.jornada;
+      user.estado = estado ?? user.estado;
     }
 
+    // Guardar los cambios en la base de datos
     await userRepository.save(user);
 
     res.status(200).json({ message: "Usuario actualizado exitosamente.", data: user });
