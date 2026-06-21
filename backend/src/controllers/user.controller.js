@@ -75,7 +75,7 @@ export async function createUser(req, res) {
     const userRepository = AppDataSource.getRepository(UserEntity);
     const { rut, nombre, apellido, rol , password, email, telefono, estado, jornada } = req.body;
 
-    const rolesPermitidos = ["Empleado"];
+    const rolesPermitidos = ["empleado"];
     if (!rolesPermitidos.includes(rol.toLowerCase())) {
       return res.status(400).json({ 
         message: `Rol inválido. Solo se permiten: ${rolesPermitidos.join(", ")}.` 

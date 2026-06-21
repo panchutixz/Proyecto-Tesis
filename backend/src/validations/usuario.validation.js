@@ -128,12 +128,6 @@ apellido: Joi.string()
     .allow(null)
     .messages({
       "any.only": "La jornada debe ser Mañana, Tarde o Administrativa.",
-}),
-jornada: Joi.string()
-    .valid("Mañana", "Tarde", "Administrativa")
-    .allow(null)
-    .messages({
-      "any.only": "La jornada debe ser Mañana, Tarde o Administrativa.",
     }),
 })
   .unknown(false)
