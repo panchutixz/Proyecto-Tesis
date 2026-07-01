@@ -70,6 +70,15 @@ const Sidebar = () => {
             </button>
           </li>
           )}
+          {/* Tareas — todos los roles */}
+          <li>
+            <button
+              onClick={() => navigate('/tareas')}
+              className="w-full text-left hover:bg-gray-700 p-2 rounded"
+           >
+              Tareas
+            </button>
+          </li>
 
           {/* Perfil */}
           <li>

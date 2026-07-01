@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@context/AuthContext';
+import { TareasProvider } from '@context/TareasContext';   // ← agrega este import
 import Sidebar from '@components/Sidebar';
 
 function RootContent() {
@@ -7,7 +8,6 @@ function RootContent() {
   const location = useLocation();
 
   const publicRoutes = ["/", "/auth", "/auth/register", "/login"];
-  
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
   if (!user || isPublicRoute) {
@@ -27,7 +27,9 @@ function RootContent() {
 function Root() {
   return (
     <AuthProvider>
-      <RootContent />
+      <TareasProvider>       {/* ← agrega este wrapper */}
+        <RootContent />
+      </TareasProvider>      {/* ← cierra aquí */}
     </AuthProvider>
   );
 }

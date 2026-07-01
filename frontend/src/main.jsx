@@ -11,6 +11,8 @@ import '@styles/styles.css';
 import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Tareas from '@pages/Tareas';
+import {TareasProvider} from '@context/TareasContext';
 
 import { UserProvider } from '@context/UserContext';
 
@@ -53,6 +55,14 @@ const router = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'tareas',
+            element: (
+              <ProtectedRoute>
+                <Tareas />
               </ProtectedRoute>
             ),
           },
