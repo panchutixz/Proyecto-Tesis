@@ -16,21 +16,24 @@ import { UserProvider } from '@context/UserContext';
 
 const router = createBrowserRouter([
   {
-    // ENVOLTURAS MAESTRAS EN LA RAÍZ COMPLETA
+   
     path: '/',
-    errorElement: <Error404 />, // Atrapa cualquier colapso imprevisto o error fatal de la app
+    errorElement: <Error404 />, 
     children: [
       
-      // A. COMPONENTES CON SIDEBAR INCLUIDO (Hijos de Root)
+      
       {
-        path: '/',
+        path: '/', 
         element: <Root />,
         children: [
-          { path: '/', element: <Login /> },
-          { path: '/auth', element: <Login /> },
-          { path: '/auth/register', element: <Register /> },
+       
+          { index: true, element: <Login /> }, 
+          { path: 'auth', element: <Login /> },
+          { path: 'auth/register', element: <Register /> },
+          
+          
           {
-            path: "/usuarios",
+            path: "usuarios",
             element: (
               <ProtectedRoute allowedRoles={["administrador", "supervisor", "encargado"]}>
                 <Usuarios />
@@ -38,25 +41,30 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: '/home',
+            path: 'home',
             element: (
               <ProtectedRoute> 
                 <Home />
               </ProtectedRoute>
             ),
           },
+          {
+            path: 'profile',
+            element: (
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            ),
+          },
         ]
       },
+
+      
       {
-        path: "/profile",
-        element: <Profile />,
-      },
-      // B. COMPONENTES INDEPENDIENTES (A Pantalla Completa sin Sidebar)
-      {
-        path: '/acceso-denegado',
+        path: 'acceso-denegado',
         element: <AccesoDenegado />
       },
-      // Captura cualquier otra URL loca escrita a mano a pantalla completa
+      
       {
         path: '*',
         element: <Error404 />
@@ -65,7 +73,7 @@ const router = createBrowserRouter([
   }
 ]);
 
-// RENDERIZADO GLOBAL
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <UserProvider>
     <RouterProvider router={router} />
