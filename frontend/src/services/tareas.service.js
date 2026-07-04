@@ -1,39 +1,40 @@
 import axios from '@services/root.service.js';
 
 export async function getTareas() {
-  try {
-    const response = await axios.get('/tareas');
-    return response.data;
-  } catch (error) {
-    if (error.response?.data) throw new Error(error.response.data.message);
-    throw error;
-  }
+  const res = await axios.get('/tareas');
+  return res.data;
 }
 
 export async function createTarea(data) {
-  try {
-    const response = await axios.post('/tareas', data);
-    return response.data;
-  } catch (error) {
-    if (error.response?.data) throw new Error(error.response.data.message);
-    throw error;
-  }
+  const res = await axios.post('/tareas', data);
+  return res.data;
+}
+
+export async function updateTarea(id, data) {
+  const res = await axios.put(`/tareas/${id}`, data);
+  return res.data;
+}
+
+export async function deleteTarea(id) {
+  const res = await axios.delete(`/tareas/${id}`);
+  return res.data;
 }
 
 export async function updateSubtareaEstado(tareaId, subtareaId, estado) {
-  try {
-    const response = await axios.patch(
-      `/tareas/${tareaId}/subtareas/${subtareaId}/estado`,
-      { estado }
-    );
-    return response.data;
-  } catch (error) {
-    if (error.response?.data) throw new Error(error.response.data.message);
-    throw error;
-  }
+  const res = await axios.patch(`/tareas/${tareaId}/subtareas/${subtareaId}/estado`, { estado });
+  return res.data;
 }
 
-// ── Subtareas automáticas por departamento+actividad ──────────────────────
+export async function uploadEvidencia(tareaId, file) {
+  const form = new FormData();
+  form.append('evidencia', file);
+  const res = await axios.post(`/tareas/${tareaId}/evidencia`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+}
+
+// ── Subtareas automáticas por departamento + actividad ────────────────────
 export const SUBTAREAS_POR_DEPARTAMENTO = {
   'FACE': {
     'Limpiar Baños':  ['Limpiar lavamanos','Rellenar papel higiénico','Reponer jabón de mano','Limpiar piso','Limpiar vidrios'],
