@@ -37,12 +37,12 @@ export const TareaEntity = new EntitySchema({
     },
     hora_registro: {
       type: "varchar",
-      length: 10,
+      length: 20,
       nullable: true,
     },
     trabajador_id: {
-      type: "int",
-      nullable: false,
+      type: "varchar",   // ← varchar igual que en tu BD actual (imagen 3)
+      nullable: true,
     },
     trabajador_nombre: {
       type: "varchar",
@@ -67,13 +67,7 @@ export const TareaEntity = new EntitySchema({
       inverseSide: "tarea",
       cascade: true,
       eager: true,
-    },
-    trabajador: {
-      type: "many-to-one",
-      target: "User",
-      joinColumn: { name: "trabajador_id",
-      },
-      nullable: true,
+      // ← SIN relación a User, sin FK
     },
   },
 });

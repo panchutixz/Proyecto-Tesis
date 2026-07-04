@@ -38,49 +38,57 @@ export async function createTarea(req, res) {
       return res.status(403).json({ message: "Solo el administrador puede asignar tareas." });
     }
 
-    const { nombre, departamento, actividad, jornada, trabajadorId, trabajadorNombre, subtareas } = req.body;
+    const {
+      nombre, departamento, actividad,
+      jornada, trabajadorId, trabajadorNombre, subtareas,
+    } = req.body;
 
-    if (!nombre || !departamento || !actividad || !jornada || !trabajadorId) {
+    if (!nombre || !departamento || !actividad || !jornada) {
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
 
     const tareaRepo    = AppDataSource.getRepository(TareaEntity);
     const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
 
-    // Crear tarea
     const nuevaTarea = tareaRepo.create({
       nombre,
       departamento,
       actividad,
       jornada,
-      estado: "No Realizado",
-      trabajador_id:     Number(trabajadorId),
+      estado:            "No Realizado",
+      hora_registro:     null,
+      trabajador_id:     trabajadorId ? String(trabajadorId) : null,  // ← string, sin FK
       trabajador_nombre: trabajadorNombre || "",
     });
+
     const tareaGuardada = await tareaRepo.save(nuevaTarea);
 
-    // Crear subtareas
     if (Array.isArray(subtareas) && subtareas.length > 0) {
-      const nuevasSubtareas = subtareas.map(texto =>
+      const nuevasSubs = subtareas.map(texto =>
         subtareaRepo.create({
           texto,
-          estado: "No Realizado",
+          estado:   "No Realizado",
           tarea_id: tareaGuardada.id,
         })
       );
-      await subtareaRepo.save(nuevasSubtareas);
+      await subtareaRepo.save(nuevasSubs);
     }
 
-    // Devolver tarea completa con subtareas
     const tareaCompleta = await tareaRepo.findOne({
       where: { id: tareaGuardada.id },
       relations: ["subtareas"],
     });
 
-    return res.status(201).json({ message: "Tarea creada exitosamente.", data: tareaCompleta });
+    return res.status(201).json({
+      message: "Tarea creada exitosamente.",
+      data: tareaCompleta,
+    });
   } catch (error) {
     console.error("Error en createTarea:", error);
-    return res.status(500).json({ message: "Error interno del servidor." });
+    return res.status(500).json({
+      message: "Error interno del servidor.",
+      detail: error.message,
+    });
   }
 }
 
@@ -96,7 +104,7 @@ export async function updateTareaEstado(req, res) {
 
     tarea.estado        = estado;
     tarea.hora_registro = estado === "Realizado"
-      ? new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })
+      ? new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
       : null;
 
     await repo.save(tarea);
@@ -130,7 +138,7 @@ export async function updateSubtareaEstado(req, res) {
     if (tarea) {
       tarea.estado = todasRealizadas ? "Realizado" : "No Realizado";
       tarea.hora_registro = todasRealizadas
-        ? new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })
+        ? new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
         : tarea.hora_registro;
       await tareaRepo.save(tarea);
     }
