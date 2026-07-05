@@ -227,7 +227,7 @@ export async function deleteUserById(req, res) {
       return res.status(400).json({ message: "ID de usuario inválido." });
     }
 
-    const isSelfDelete = ["administrador", "encargado", "supervisor"].includes(rolAutenticado) && idNum === usuarioAutenticado.id;
+    const isSelfDelete = ["administrador", "supervisor"].includes(rolAutenticado) && idNum === usuarioAutenticado.id;
     if (isSelfDelete) {
       return res.status(403).json({ message: "Acceso denegado. No puedes eliminarte a ti mismo." });
     }

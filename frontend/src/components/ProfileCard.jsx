@@ -3,15 +3,13 @@ import axios from "@services/root.service.js";
 import Swal from "sweetalert2";
 import { useState } from "react";
 
-import encargadoPic from "@assets/roles/encargado.png";
-import administradorPic from "@assets/roles/administrador.png";
-import empleadoPic from "@assets/roles/empleado.png";
-import supervisorPic from "@assets/roles/supervisor.png";
-import bodegueroPic from "@assets/roles/bodeguero.png";
+import administradorPic from "@assets/roles/administrador.jpg";
+import empleadoPic from "@assets/roles/empleado.jpg";
+import supervisorPic from "@assets/roles/supervisor.jpg";
+import bodegueroPic from "@assets/roles/bodeguero.jpg";
 import defaultPic from "@assets/gatodosekai.png";
 
 const roleImages = {
-  encargado: encargadoPic,
   administrador: administradorPic,
   empleado: empleadoPic,
   supervisor: supervisorPic,

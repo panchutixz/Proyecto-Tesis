@@ -9,7 +9,6 @@ import { useAuth } from "../context/AuthContext.jsx";
 const rolColors = {
   administrador: '#0d47a1',   // azul oscuro
   supervisor: '#0288d1',         // celeste/azul
-  encargado: '#2e7d32',      // verde
   empleado: '#e65100',     // naranjo fuerte
   bodeguero: '#6a1b9a'        // púrpura
 };
