@@ -14,9 +14,13 @@ const Tareas = () => {
   const { handleEditTarea }                         = useEditTarea(fetchTareas);
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
 
-  const rol        = user?.rol?.toLowerCase();
-  const isAdmin    = rol === 'administrador';
-  const isEmpleado = !isAdmin;
+  const rol           = user?.rol?.toLowerCase();
+  const isAdmin       = rol === 'administrador';
+  const isSupervisor  = rol === 'supervisor';
+  // Solo el rol "empleado" puede marcar tareas/subtareas como realizadas.
+  // Administrador y Supervisor solo pueden visualizar (readonly), igual que el admin.
+  const isEmpleado    = !isAdmin && !isSupervisor;
+  const puedeMarcar   = isEmpleado;
 
   // Empleado: usa su jornada del token; Admin: puede cambiar
   const jornadaEmpleado = user?.jornada || 'Mañana';
@@ -120,11 +124,11 @@ const Tareas = () => {
                           <div key={sub.id} className="subtarea-item">
                             <div className={`subtarea-bar ${sr ? 'realizado' : 'no-realizado'}`} />
 
-                            {/* Check: solo empleado puede marcar */}
+                            {/* Check: solo empleado puede marcar. Admin y Supervisor: solo lectura */}
                             <div
-                              className={`subtarea-check ${sr ? 'checked' : ''} ${isAdmin ? 'readonly' : ''}`}
-                              onClick={() => { if (isEmpleado) toggleSubtarea(tarea.id, sub.id); }}
-                              title={isAdmin ? 'Solo el empleado puede marcar subtareas' : 'Marcar como realizado'}
+                              className={`subtarea-check ${sr ? 'checked' : ''} ${!puedeMarcar ? 'readonly' : ''}`}
+                              onClick={() => { if (puedeMarcar) toggleSubtarea(tarea.id, sub.id); }}
+                              title={puedeMarcar ? 'Marcar como realizado' : 'Solo el empleado puede marcar subtareas'}
                             >
                               {sr ? '✓' : ''}
                             </div>

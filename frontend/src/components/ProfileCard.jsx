@@ -6,7 +6,7 @@ import { useState } from "react";
 import administradorPic from "@assets/roles/administrador.jpg";
 import empleadoPic from "@assets/roles/empleado.jpg";
 import supervisorPic from "@assets/roles/supervisor.jpg";
-import bodegueroPic from "@assets/roles/bodeguero.jpg";
+import bodegueroPic from "@assets/roles/Bodeguero.jpg";
 import defaultPic from "@assets/gatodosekai.png";
 
 const roleImages = {

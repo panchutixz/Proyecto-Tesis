@@ -102,3 +102,71 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* ══════════════════════════════════════════════════════════
+   Modo celular
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .tareas-page {
+    width: calc(100% - 16px);
+    margin: 12px auto;
+    padding: 14px 12px;
+    border-radius: 8px;
+  }
+
+  .tareas-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .tareas-title-wrap h2 { font-size: 16px; letter-spacing: 1px; }
+  .tareas-subtitle { font-size: 12px; }
+
+  .tareas-header-right {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .tareas-addbtn {
+    width: 100%;
+    text-align: center;
+    padding: 10px 12px;
+  }
+
+  .tarea-header {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .tarea-nombre { font-size: 14px; }
+  .tarea-meta   { font-size: 11px; }
+
+  .badge-tarea { font-size: 11px; padding: 4px 10px; }
+
+  .tarea-acciones { margin-left: 0; }
+
+  .subtarea-item {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    row-gap: 6px;
+  }
+
+  .subtarea-texto {
+    flex: 1 1 100%;
+    order: 3;
+    font-size: 13px;
+  }
+
+  .subtarea-estado {
+    min-width: auto;
+    text-align: left;
+    order: 4;
+  }
+}
+
+@media (max-width: 420px) {
+  .tareas-title-wrap h2 { font-size: 14px; }
+  .jornada-pill { padding: 5px 12px; font-size: 11px; }
+}

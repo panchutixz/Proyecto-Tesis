@@ -17,7 +17,7 @@ function RootContent() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <main className="flex-1 p-6 overflow-auto ml-64">
+      <main className="flex-1 p-4 pt-16 md:p-6 md:pt-6 overflow-auto ml-0 md:ml-64 w-full">
         <Outlet />
       </main>
     </div>

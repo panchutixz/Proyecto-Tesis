@@ -190,12 +190,23 @@ export async function deleteTarea(req, res) {
 // ── PATCH /api/tareas/:id/estado ───────────────────────────────────────────
 export async function updateTareaEstado(req, res) {
   try {
+    const rol = req.user?.rol?.toLowerCase();
+    // Solo el empleado asignado puede marcar tareas. Administrador y Supervisor son solo lectura.
+    if (["administrador", "supervisor"].includes(rol)) {
+      return res.status(403).json({ message: "Este rol no puede marcar tareas, solo puede visualizarlas." });
+    }
+
     const repo = AppDataSource.getRepository(TareaEntity);
     const { id } = req.params;
     const { estado } = req.body;
 
     const tarea = await repo.findOne({ where: { id: Number(id) } });
     if (!tarea) return res.status(404).json({ message: "Tarea no encontrada." });
+
+    const solicitanteId = String(req.user?.id || req.user?.sub || "");
+    if (tarea.trabajador_id !== solicitanteId) {
+      return res.status(403).json({ message: "No puedes marcar una tarea que no te fue asignada." });
+    }
 
     tarea.estado        = estado;
     tarea.hora_registro = estado === "Realizado" ? HORA() : null;
@@ -211,11 +222,25 @@ export async function updateTareaEstado(req, res) {
 // ── PATCH /api/tareas/:tareaId/subtareas/:subtareaId/estado ────────────────
 export async function updateSubtareaEstado(req, res) {
   try {
+    const rol = req.user?.rol?.toLowerCase();
+    // Solo el empleado asignado puede marcar subtareas. Administrador y Supervisor son solo lectura.
+    if (["administrador", "supervisor"].includes(rol)) {
+      return res.status(403).json({ message: "Este rol no puede marcar subtareas, solo puede visualizarlas." });
+    }
+
     const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
     const tareaRepo    = AppDataSource.getRepository(TareaEntity);
 
     const { tareaId, subtareaId } = req.params;
     const { estado } = req.body;
+
+    const tareaPadre = await tareaRepo.findOne({ where: { id: Number(tareaId) } });
+    if (!tareaPadre) return res.status(404).json({ message: "Tarea no encontrada." });
+
+    const solicitanteId = String(req.user?.id || req.user?.sub || "");
+    if (tareaPadre.trabajador_id !== solicitanteId) {
+      return res.status(403).json({ message: "No puedes marcar una subtarea que no te fue asignada." });
+    }
 
     const subtarea = await subtareaRepo.findOne({ where: { id: Number(subtareaId) } });
     if (!subtarea) return res.status(404).json({ message: "Subtarea no encontrada." });
