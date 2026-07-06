@@ -14,10 +14,13 @@ export async function loginUser(email, password) {
 
   // Construir payload incluyendo rol
   const payload = {
-    sub: user.id,
-    email: user.email,
-    rol: user.rol ?? user.role ?? null,
-  };
+  sub:     user.id,
+  id:      user.id,        // ← agrega esto
+  email:   user.email,
+  rol:     user.rol ?? user.role ?? null,
+  jornada: user.jornada ?? null,   // ← agrega esto
+  nombre:  user.nombre ?? null,    // ← agrega esto
+};
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 
   delete user.password;

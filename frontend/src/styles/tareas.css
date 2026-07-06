@@ -73,3 +73,32 @@
 .tareas-hint  { text-align: center; font-size: 12px; color: #8899bb; font-style: italic; margin-top: 14px; }
 .tareas-empty { text-align: center; color: #8899bb; font-style: italic; padding: 40px 0;
   font-size: 14px; background: #fff; border-radius: 8px; }
+
+  /* ── Acciones admin (editar / eliminar) ── */
+.tarea-acciones {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.btn-tarea-editar,
+.btn-tarea-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background .15s;
+  line-height: 1;
+}
+
+.btn-tarea-editar:hover   { background: rgba(255,255,255,0.15); }
+.btn-tarea-eliminar:hover { background: rgba(192,57,43,0.35); }
+
+/* ── Check readonly para admin ── */
+.subtarea-check.readonly {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

@@ -34,7 +34,6 @@ export async function uploadEvidencia(tareaId, file) {
   return res.data;
 }
 
-// ── Subtareas automáticas por departamento + actividad ────────────────────
 export const SUBTAREAS_POR_DEPARTAMENTO = {
   'FACE': {
     'Limpiar Baños':  ['Limpiar lavamanos','Rellenar papel higiénico','Reponer jabón de mano','Limpiar piso','Limpiar vidrios'],
@@ -66,11 +65,5 @@ export const SUBTAREAS_POR_DEPARTAMENTO = {
 };
 
 export const DEPARTAMENTOS = Object.keys(SUBTAREAS_POR_DEPARTAMENTO);
-
-export function getActividadesPorDepartamento(depto) {
-  return Object.keys(SUBTAREAS_POR_DEPARTAMENTO[depto] || {});
-}
-
-export function getSubtareasPorDepartamentoYActividad(depto, actividad) {
-  return SUBTAREAS_POR_DEPARTAMENTO[depto]?.[actividad] || [];
-}
+export const getActividadesPorDepartamento = (d) => Object.keys(SUBTAREAS_POR_DEPARTAMENTO[d] || {});
+export const getSubtareasPorDepartamentoYActividad = (d, a) => SUBTAREAS_POR_DEPARTAMENTO[d]?.[a] || [];

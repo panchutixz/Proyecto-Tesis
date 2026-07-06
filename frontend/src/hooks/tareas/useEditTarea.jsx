@@ -4,11 +4,11 @@ import { GetUsers } from '@services/usuarios.service.js';
 
 export const useEditTarea = (fetchTareas) => {
   const handleEditTarea = async (tarea) => {
-    let todosLosUsuarios = [];
+    let usuarios = [];
     try {
       const res = await GetUsers();
-      todosLosUsuarios = Array.isArray(res?.data) ? res.data : [];
-    } catch { todosLosUsuarios = []; }
+      usuarios = Array.isArray(res?.data) ? res.data : [];
+    } catch { usuarios = []; }
 
     const deptosOpts = DEPARTAMENTOS.map(d =>
       `<option value="${d}" ${d === tarea.departamento ? 'selected' : ''}>${d}</option>`
@@ -61,10 +61,10 @@ export const useEditTarea = (fetchTareas) => {
             <label>Trabajador asignado</label>
             <select id="sf-trab">
               <option value="" disabled>Seleccionar...</option>
-              ${todosLosUsuarios.map(u =>
-                `<option value="${u.id}" data-nombre="${u.nombre} ${u.apellido||''}"
+              ${usuarios.map(u =>
+                `<option value="${u.id}" data-nombre="${u.nombre} ${u.apellido || ''}"
                   ${String(u.id) === String(tarea.trabajador_id) ? 'selected' : ''}>
-                  ${u.nombre} ${u.apellido||''} — ${u.jornada||''}
+                  ${u.nombre} ${u.apellido || ''} — ${u.jornada || ''}
                 </option>`
               ).join('')}
             </select>
@@ -88,7 +88,6 @@ export const useEditTarea = (fetchTareas) => {
         const subsList = document.getElementById('sf-subs');
         const btnAdd   = document.getElementById('sf-add');
 
-        // Carga subtareas actuales
         subsActuales.forEach(t => addFila(t));
 
         deptoSel.addEventListener('change', () => {
@@ -143,22 +142,15 @@ export const useEditTarea = (fetchTareas) => {
           });
           return res?.data || res;
         } catch (err) {
-          Swal.showValidationMessage(err.message || 'Error al actualizar la tarea.');
+          Swal.showValidationMessage(err?.response?.data?.message || err.message || 'Error al actualizar.');
           return false;
         }
       },
     });
 
     if (!value) return;
-
     await fetchTareas();
-    await Swal.fire({
-      title: 'Tarea actualizada',
-      icon: 'success',
-      timer: 1800,
-      timerProgressBar: true,
-      showConfirmButton: false,
-    });
+    await Swal.fire({ title: 'Tarea actualizada', icon: 'success', timer: 1800, timerProgressBar: true, showConfirmButton: false });
   };
 
   return { handleEditTarea };
