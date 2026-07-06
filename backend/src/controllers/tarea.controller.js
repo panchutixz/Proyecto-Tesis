@@ -18,7 +18,7 @@ export async function getTareas(req, res) {
     const rol  = user?.rol?.toLowerCase();
 
     let tareas;
-    if (["administrador", "supervisor", "encargado"].includes(rol)) {
+    if (["administrador", "supervisor"].includes(rol)) {
       tareas = await repo.find({ relations: ["subtareas"] });
     } else {
       // Empleado: solo sus tareas (trabajador_id guardado como string)

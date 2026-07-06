@@ -150,7 +150,7 @@ export async function updateUserById(req, res) {
 
     // --- VALIDACIONES PARA EDICIÓN DE OTROS USUARIOS ---
     if (!isSelfEdit) {
-      const rolesValidos = ["Empleado", "Encargado", "Bodeguero", "Supervisor", "Administrador"];
+      const rolesValidos = ["Empleado", "Bodeguero", "Supervisor", "Administrador"];
       if (rol && !rolesValidos.map(r => r.toLowerCase()).includes(rol.toLowerCase())) {
         return res.status(400).json({ message: `Rol inválido. Solo se permiten: ${rolesValidos.join(", ")}.` });
       }

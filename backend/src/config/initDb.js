@@ -34,17 +34,6 @@ export async function createusers(){
                 password: await encryptPassword("supervisor123")
             },
             {
-                rut: "7.654.321-0", 
-                nombre: "Encargado",
-                apellido: "Matamala",
-                email: "encargado@gmail.com",
-                rol: "Encargado",
-                telefono: "+56911223344",
-                estado: "Activo",
-                jornada: "Administrativa",
-                password: await encryptPassword("encargado123")
-            },
-            {
                 rut: "14.258.369-4",
                 nombre: "Empleado",
                 apellido: "Maturraga",

@@ -13,7 +13,7 @@ const domainEmailValidator = (value, helpers) => {
 
 const telefonoRegex = /^\+?[0-9\s\-]{7,20}$/;
 const passwordRegex = /^[a-zA-Z0-9]+$/;
-const allowedRoles = ["Administrador", "Supervisor", "Encargado", "Empleado", "Bodeguero", "administrador", "supervisor", "encargado", "empleado", "bodeguero"];
+const allowedRoles = ["Administrador", "Supervisor", "Empleado", "Bodeguero", "administrador", "supervisor", "empleado", "bodeguero"];
 
 
 export const registerValidation = Joi.object({
@@ -155,7 +155,7 @@ export async function validateRegister(data, checkEmailExists) {
   }
 
   // Validación de rol y dominio de correo
-  if (role === "empleado" || role === "bodeguero" || role === "encargado" || role === "supervisor" || role === "administrador" ) {
+  if (role === "empleado" || role === "bodeguero" || role === "supervisor" || role === "administrador" ) {
     if (!email.endsWith("@gmail.com")) {
       throw Object.assign(
         new Error(`Para este rol, el correo debe terminar en @gmail.com.`),
