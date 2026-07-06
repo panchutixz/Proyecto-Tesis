@@ -4,17 +4,17 @@ services:
     container_name: db-tesis
     restart: always
     environment:
-      - POSTGRES_DB=${DB_NAME:-Proyecto-Tesis}
-      - POSTGRES_USER=${DB_USER:-postgres}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-huachimingo} # <--- Tu contraseña aquí
+      - POSTGRES_DB=${DB_NAME:-Docker-Tesis}
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-huachimingo}
     ports:
-      - "${DB_HOST_PORT:-5433}:5432"   # <--- expone el Postgres del contenedor en localhost:5433
+      - "${DB_HOST_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - backend_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-Proyecto-Tesis}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-Docker-Tesis}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,18 +22,19 @@ services:
   backend:
     build: ./backend
     container_name: backend-tesis
+    restart: always
     environment:
       - HOST=0.0.0.0
-      - PORT=${BACKEND_PORT:-3000}
+      - PORT=${PORT:-3000}
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_USERNAME=${DB_USER:-postgres}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-huachimingo}
-      - DATABASE=${DB_NAME:-Proyecto-Tesis}
-      - JWT_SECRET=fknoljifyjfcyxloloqdsjgctvtvnvqlpsmftlnvvuvyteamcmiiggtwzeeedhofpnpuwfssxfpxiadmfyulscglhciaufssmrttolhulkiyqygmbcutzthunckqzaox     
-      - COOKIE_KEY=lvfvdxywuvkmggktdvngonbmuqcmhwsauqaupxxcdwangmuzbkammxtjtsxlqiigbghwdwxjregqoaoudsgpwjvrtoeesubhclyalwfdmhmdhiftpepkoxzigshfggdy
+      - DATABASE=${DB_NAME:-Docker-Tesis}
+      - JWT_SECRET=${JWT_SECRET}
+      - COOKIE_KEY=${COOKIE_KEY}
     ports:
-      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}"
+      - "${PORT:-3000}:${PORT:-3000}"
     depends_on:
       db:
         condition: service_healthy
@@ -44,6 +45,7 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend-tesis
+    restart: always
     ports:
       - "${FRONTEND_PORT:-8080}:80"
     depends_on:
