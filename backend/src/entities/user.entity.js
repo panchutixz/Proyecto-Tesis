@@ -48,6 +48,16 @@ export const UserEntity = new EntitySchema({
       type: "varchar",
       nullable: true,
     },
+    estado: {
+      type: "varchar",
+      length: 50,
+      nullable: true,
+    },
+      jornada: {
+      type: "varchar",
+      length: 30,
+      nullable: true,
+    },
 
     created_at: {
       type: "timestamp",

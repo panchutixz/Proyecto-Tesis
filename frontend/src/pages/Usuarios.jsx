@@ -9,7 +9,6 @@ import { useAuth } from "../context/AuthContext.jsx";
 const rolColors = {
   administrador: '#0d47a1',   // azul oscuro
   supervisor: '#0288d1',         // celeste/azul
-  encargado: '#2e7d32',      // verde
   empleado: '#e65100',     // naranjo fuerte
   bodeguero: '#6a1b9a'        // púrpura
 };
@@ -42,15 +41,19 @@ const Users = () => {
   return (
     <div className="users-page">
       <div className="users-header">
-        <h2>Lista de Usuarios</h2>
+        <div className="users-title-wrap">
+          <h2>LISTADO DE PERSONAL</h2>
+          <p className="users-subtitle">— todos los trabajadores</p>
+        </div>
         {authUser?.rol === 'Administrador' && (
-          <button className="users-addbtn">
+          <button className="users-addbtn" onClick={handleCreateUser}>
             Añadir Usuario
           </button>
         )}
       </div>
 
-      <table className="users-table">
+      <div className="users-table-wrapper">
+        <table className="users-table">
         <thead>
           <tr>
             <th>Rut</th>
@@ -59,6 +62,8 @@ const Users = () => {
             <th>Email</th>
             <th>Rol</th>
             <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Jornada</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -76,14 +81,19 @@ const Users = () => {
                   </span>
                 </td>
                 <td>{u.telefono}</td>
+                <td>{u.estado}</td>
+                <td>{u.jornada}</td>
                 <td>
-                  <button className="delete">
-                    Eliminar
-                  </button>
+                  {!(authUser && ["Administrador", "Supervisor", "Encargado"].includes(authUser.rol) && authUser.id === u.id) && (
+                    <button className="delete" onClick={() => handleDeleteUser(u.id)}>
+                      Eliminar
+                    </button>
+                  )}
                   {authUser?.rol === 'Administrador' && (
                     <button
                       className="edit"
                       style={{ marginLeft: "8px" }}
+                      onClick={() => handleEditUser(u.id, u)}
                     >
                       Editar
                     </button>
@@ -97,7 +107,8 @@ const Users = () => {
             </tr>
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 };

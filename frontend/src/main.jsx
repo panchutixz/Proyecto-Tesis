@@ -5,46 +5,84 @@ import Home from '@pages/Home';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
+import AccesoDenegado from '@components/AccesoDenegado'; 
+import Profile from '@pages/Profile';
 import '@styles/styles.css';
 import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Tareas from '@pages/Tareas';
+import {TareasProvider} from '@context/TareasContext';
 
 import { UserProvider } from '@context/UserContext';
 
 const router = createBrowserRouter([
   {
+   
     path: '/',
-    element: <Root />,
-    errorElement: <Error404 />,
+    errorElement: <Error404 />, 
     children: [
+      
+      
       {
-        path: '/',
-        element: <Login />
+        path: '/', 
+        element: <Root />,
+        children: [
+       
+          { index: true, element: <Login /> }, 
+          { path: 'auth', element: <Login /> },
+          { path: 'auth/register', element: <Register /> },
+          
+          
+          {
+            path: "usuarios",
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "supervisor", "encargado"]}>
+                <Usuarios />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'home',
+            element: (
+              <ProtectedRoute> 
+                <Home />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'tareas',
+            element: (
+              <ProtectedRoute>
+                <Tareas />
+              </ProtectedRoute>
+            ),
+          },
+        ]
       },
+
+      
       {
-        path: '/auth',
-        element: <Login />
+        path: 'acceso-denegado',
+        element: <AccesoDenegado />
       },
+      
       {
-        path: '/auth/register',
-        element: <Register />
-      },
-      {
-        path: "/usuarios",
-        element: (
-          <ProtectedRoute allowedRoles={["admin", "guardia"]}>
-            <Usuarios />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: '/home',
-        element: <Home />
-      },
+        path: '*',
+        element: <Error404 />
+      }
     ]
   }
 ]);
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <UserProvider>

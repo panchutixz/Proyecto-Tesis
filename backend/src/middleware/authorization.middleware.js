@@ -31,7 +31,7 @@ export async function isAdmin(req, res, next) {
   }
 }
 
-export async function isGuardia(req, res, next) {
+export async function isEncargado(req, res, next) {
   try {
     // Buscar el usuario en la base de datos
     const userRepository = AppDataSource.getRepository(User);
@@ -45,7 +45,7 @@ export async function isGuardia(req, res, next) {
     const rolUser = userFound.role;
 
     // Si el rol no es administrador, devolver un error 401
-    if (rolUser === "guardia") 
+    if (rolUser === "encargado") 
     {
       next();
       return;
@@ -54,7 +54,65 @@ export async function isGuardia(req, res, next) {
         .status(401)
         .json({
           message:
-            "Error al acceder al recurso. Se requiere un rol de guardia para realizar esta acción.",
+            "Error al acceder al recurso. Se requiere un rol de encargado para realizar esta acción.",
+        });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor", error });
+  }
+}
+export async function isSupervisor(req, res, next) {
+  try {
+    // Buscar el usuario en la base de datos
+    const userRepository = AppDataSource.getRepository(User);
+    const userFound = await userRepository.findOneBy({
+      email: req.user?.email,
+    });
+
+    if (!userFound) return res.status(404).json("Usuario no encontrado");
+
+    // Verificar el rol del usuario
+    const rolUser = userFound.role;
+
+    // Si el rol no es administrador, devolver un error 401
+    if (rolUser === "supervisor") 
+    {
+      next();
+      return;
+    }
+    return res
+        .status(401)
+        .json({
+          message:
+            "Error al acceder al recurso. Se requiere un rol de supervisor para realizar esta acción.",
+        });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor", error });
+  }
+}
+export async function isBodeguero(req, res, next) {
+  try {
+    // Buscar el usuario en la base de datos
+    const userRepository = AppDataSource.getRepository(User);
+    const userFound = await userRepository.findOneBy({
+      email: req.user?.email,
+    });
+
+    if (!userFound) return res.status(404).json("Usuario no encontrado");
+
+    // Verificar el rol del usuario
+    const rolUser = userFound.role;
+
+    // Si el rol no es administrador, devolver un error 401
+    if (rolUser === "bodeguero") 
+    {
+      next();
+      return;
+    }
+    return res
+        .status(401)
+        .json({
+          message:
+            "Error al acceder al recurso. Se requiere un rol de bodeguero para realizar esta acción.",
         });
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor", error });

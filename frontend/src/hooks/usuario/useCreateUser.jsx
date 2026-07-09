@@ -1,10 +1,11 @@
-import Swal from "sweetalert2"
+import Swal from "sweetalert2";
 import { CreateUsers } from "@services/usuarios.service.js";
 
-async function addUserPopup(){
-    const {value: formValues } = await Swal.fire({
-        title: "Añadir Usuario",
-        html: `
+async function addUserPopup() {
+  // Guardamos la respuesta final en una variable
+  const { value: formValues } = await Swal.fire({
+    title: "Añadir Usuario",
+    html: `
         <div>
           <label for="swal2-rut">Rut</label>
           <input id="swal2-rut" class="swal2-input" placeholder="Rut del usuario">
@@ -29,23 +30,31 @@ async function addUserPopup(){
           <label for="swal2-rol">Rol</label>
           <select id="swal2-rol" class="swal2-input swal2-select">
             <option value="" disabled selected>Seleccione el rol</option>
-            <option value="Empleado" ${user.rol === "Empleado" ? "selected" : ""}>Empleado</option>
+            <option value="Empleado">Empleado</option>
           </select>
         </div>
         <div>
           <label for="swal2-telefono">Teléfono</label>
           <input id="swal2-telefono" class="swal2-input" placeholder="Teléfono del usuario">
         </div>
+        <div>
+          <label for="swal2-jornada">Jornada</label>
+          <select id="swal2-jornada" class="swal2-input swal2-select">
+            <option value="" disabled selected>Seleccione la jornada</option>
+            <option value="Mañana">Mañana</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Administrativa">Administrativa</option>
+          </select>
+        </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Añadir",
+    showLoaderOnConfirm: true, // Muestra una animación de carga mientras se ejecuta preConfirm
     didOpen: () => {
-      // ajustar visual del select para que coincida con los inputs de SweetAlert2
       const popup = Swal.getPopup();
       const style = document.createElement('style');
       style.innerHTML = `
-        /* Force select to match swal2-input appearance */
         .swal2-select {
           height: 44px !important;
           padding: 8px 36px 8px 12px !important;
@@ -63,78 +72,79 @@ async function addUserPopup(){
           background-repeat: no-repeat;
           cursor: pointer;
         }
-        /* keep labels aligned with inputs */
         .swal2-html-container > div { display:block; margin-bottom:12px; }
         .swal2-html-container label { display:block; margin-bottom:6px; font-weight:500; color:#333; }
+        /* Estilo opcional para que el mensaje de validación se vea más limpio */
+        .swal2-validation-message { margin: 10px 0 0 0 !important; }
       `;
       popup.appendChild(style);
     },
-    preConfirm: () => {
-        const rut = document.getElementById("swal2-rut").value.trim();
-        const nombre = document.getElementById("swal2-nombre").value.trim();
-        const apellido = document.getElementById("swal2-apellido").value.trim();
-        const email = document.getElementById("swal2-email").value.trim();
-        const password = document.getElementById("swal2-password").value;
-        const rol = document.getElementById("swal2-rol").value;
-        const telefono = document.getElementById("swal2-telefono").value.trim();
+    // Volvemos asíncrono el preConfirm para golpear la API aquí dentro
+    preConfirm: async () => {
+      const rut = document.getElementById("swal2-rut").value.trim();
+      const nombre = document.getElementById("swal2-nombre").value.trim();
+      const apellido = document.getElementById("swal2-apellido").value.trim();
+      const email = document.getElementById("swal2-email").value.trim();
+      const password = document.getElementById("swal2-password").value;
+      const rol = document.getElementById("swal2-rol").value;
+      const telefono = document.getElementById("swal2-telefono").value.trim();
+      const jornada = document.getElementById("swal2-jornada").value;
 
-        if(!rut || !nombre || !apellido || !email || !rol || !password ){
-            Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
-            return false;
-        }
+      // 1. Validación de campos requeridos locales
+      if (!rut || !nombre || !apellido || !email || !rol || !password || !jornada || !telefono) {
+        Swal.showValidationMessage("Por favor, complete todos los campos obligatorios");
+        return false;
+      }
 
-        return {rut, nombre, apellido, email, password, rol, telefono};
-    }, 
-    });
-    if(formValues){
-        return{
-            rut: formValues.rut,
-            nombre: formValues.nombre,
-            apellido: formValues.apellido,
-            email: formValues.email,
-            password: formValues.password,
-            rol: formValues.rol,
-            telefono: formValues.telefono
-        };
-    }
+      const payload = { rut, nombre, apellido, email, password, rol, telefono, jornada };
 
-    return null; //si se cancela
-} 
+      try {
+        // 2. Ejecutamos la petición directamente AQUÍ antes de cerrar el modal
+        const response = await CreateUsers(payload);
+        
+        // Si todo sale bien, retornamos true para que el popup se cierre con éxito
+        return response;
+      } catch (error) {
+        console.error("Error capturado en el preConfirm:", error);
+        
+        // 3. Extraemos el mensaje de error del backend (soporta Axios y Fetch)
+        const errorMessage = error.response?.data?.message || error.message || "Error interno del servidor.";
+        
+        // 4. Mostramos el error del backend abajo del formulario e impedimos el cierre
+        Swal.showValidationMessage(errorMessage);
+        return false;
+      }
+    },
+  });
 
-// export con nombre singular y default para coincidir con tu import en Usuarios.jsx
+  // Si formValues contiene la respuesta exitosa del backend, la retornamos
+  return formValues || null;
+}
+
 export const useCreateUser = (fetchUsers) => {
-    const handleCreateUser = async () => {
-        try{
-            const formValues = await addUserPopup();
-            if(!formValues) return;
+  const handleCreateUser = async () => {
+    try {
+      const isCreated = await addUserPopup();
+      
+      // Si el usuario canceló o hubo error, la función se detiene sin cerrar/romper nada
+      if (!isCreated) return;
 
-            // la llamada lanzará si el backend respondió con error
-            const response = await CreateUsers(formValues);
-            if(response) {
-                await Swal.fire({
-                    title: "Usuario añadido exitosamente!",
-                    icon: "success",
-                    confirmButtonText: "Aceptar",
-                    timer: 2000,
-                    timerProgressBar: true
-                })
-                await fetchUsers();
-            }
+      // Si llegó aquí es porque la API respondió 201 exitosamente desde el preConfirm
+      await Swal.fire({
+        title: "Usuario añadido exitosamente!",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        timer: 2000,
+        timerProgressBar: true
+      });
+      
+      await fetchUsers();
 
-        }catch(error){
-            console.error ("Error al añadir al usuario:", error);
-            // mostrar al usuario el mensaje enviado por el backend (o uno genérico)
-            await Swal.fire({
-                title: "No se pudo crear el usuario",
-                icon: "error",
-                text: error.message || "Error en el servidor. Revisa los datos e inténtalo nuevamente.",
-                confirmButtonText: "Aceptar",
-                timer: 2000,
-                timerProgressBar: true
-            });
-        } 
-    };   
-    return { handleCreateUser };
+    } catch (error) {
+      console.error("Error crítico en handleCreateUser:", error);
+    }
+  };
+  return { handleCreateUser };
 };
 
 export default useCreateUser;

@@ -1,0 +1,172 @@
+.tareas-page {
+  max-width: 1100px;
+  width: calc(100% - 48px);
+  margin: 28px auto;
+  padding: 28px 32px;
+  background: #eaf4f7;
+  border-radius: 4px;
+}
+.tareas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.tareas-title-wrap { display: flex; flex-direction: column; }
+.tareas-title-wrap h2 {
+  margin: 0; font-size: 20px; color: #10223f;
+  letter-spacing: 2px; font-weight: 800; text-transform: uppercase;
+}
+.tareas-subtitle { margin: 6px 0 0; color: #3b5568; font-size: 13px; letter-spacing: 1px; }
+.tareas-header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.jornada-pills { display: flex; gap: 8px; }
+.jornada-pill {
+  padding: 6px 20px; border-radius: 20px; border: 1px solid #c5d3e8;
+  background: #fff; font-size: 12px; font-weight: 600; color: #6b7cb0; cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.jornada-pill.active { background: #1a1f5e; color: #fff; border-color: #1a1f5e; }
+.tareas-addbtn {
+  background: linear-gradient(135deg,#2b6fb2,#1e4e8a); color: #fff; border: none;
+  padding: 10px 16px; border-radius: 6px; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16,34,63,.12); font-weight: 700; font-size: 14px;
+}
+.tareas-addbtn:hover { opacity: .88; }
+.tareas-list { display: flex; flex-direction: column; gap: 8px; }
+.tarea-card { border-radius: 10px; overflow: hidden; box-shadow: 0 4px 16px rgba(16,34,63,.07); }
+.tarea-header {
+  display: flex; align-items: center; gap: 14px; padding: 13px 18px;
+  background: #172651; cursor: pointer; user-select: none; transition: background .15s;
+}
+.tarea-header:hover { background: #1f3270; }
+.tarea-chevron { font-size: 11px; color: #e8b800; flex-shrink: 0; width: 16px; text-align: center; }
+.tarea-info { flex: 1; min-width: 0; }
+.tarea-nombre { font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 3px; }
+.tarea-meta   { font-size: 12px; color: #d0e8fa; margin: 0; }
+.badge-tarea  { flex-shrink: 0; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.badge-tarea.realizado    { background: #1a6e3e; color: #fff; }
+.badge-tarea.no-realizado { background: #7a5800; color: #fff; }
+.subtareas-list { background: #fff; }
+.subtarea-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px; border-bottom: 1px solid #eef2f5; transition: background .1s;
+}
+.subtarea-item:last-child { border-bottom: none; }
+.subtarea-item:nth-child(even) { background: #f7fafd; }
+.subtarea-bar { width: 4px; height: 28px; border-radius: 4px; flex-shrink: 0; }
+.subtarea-bar.realizado    { background: #1a6e3e; }
+.subtarea-bar.no-realizado { background: #c5d3e8; }
+.subtarea-check {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #c5d3e8;
+  background: #fff; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; font-size: 12px; font-weight: 700; color: transparent;
+  transition: background .2s, border-color .2s;
+}
+.subtarea-check.checked { background: #1a6e3e; border-color: #1a6e3e; color: #fff; }
+.subtarea-texto { flex: 1; font-size: 13px; color: #22313a; }
+.subtarea-texto.realizado { color: #1a6e3e; font-style: italic; }
+.subtarea-estado { font-size: 12px; font-weight: 700; min-width: 95px; text-align: right; }
+.subtarea-estado.realizado    { color: #1a6e3e; }
+.subtarea-estado.no-realizado { color: #7a5800; }
+.tareas-hint  { text-align: center; font-size: 12px; color: #8899bb; font-style: italic; margin-top: 14px; }
+.tareas-empty { text-align: center; color: #8899bb; font-style: italic; padding: 40px 0;
+  font-size: 14px; background: #fff; border-radius: 8px; }
+
+  /* ── Acciones admin (editar / eliminar) ── */
+.tarea-acciones {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.btn-tarea-editar,
+.btn-tarea-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background .15s;
+  line-height: 1;
+}
+
+.btn-tarea-editar:hover   { background: rgba(255,255,255,0.15); }
+.btn-tarea-eliminar:hover { background: rgba(192,57,43,0.35); }
+
+/* ── Check readonly para admin ── */
+.subtarea-check.readonly {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Modo celular
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .tareas-page {
+    width: calc(100% - 16px);
+    margin: 12px auto;
+    padding: 14px 12px;
+    border-radius: 8px;
+  }
+
+  .tareas-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .tareas-title-wrap h2 { font-size: 16px; letter-spacing: 1px; }
+  .tareas-subtitle { font-size: 12px; }
+
+  .tareas-header-right {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .tareas-addbtn {
+    width: 100%;
+    text-align: center;
+    padding: 10px 12px;
+  }
+
+  .tarea-header {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .tarea-nombre { font-size: 14px; }
+  .tarea-meta   { font-size: 11px; }
+
+  .badge-tarea { font-size: 11px; padding: 4px 10px; }
+
+  .tarea-acciones { margin-left: 0; }
+
+  .subtarea-item {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    row-gap: 6px;
+  }
+
+  .subtarea-texto {
+    flex: 1 1 100%;
+    order: 3;
+    font-size: 13px;
+  }
+
+  .subtarea-estado {
+    min-width: auto;
+    text-align: left;
+    order: 4;
+  }
+}
+
+@media (max-width: 420px) {
+  .tareas-title-wrap h2 { font-size: 14px; }
+  .jornada-pill { padding: 5px 12px; font-size: 11px; }
+}

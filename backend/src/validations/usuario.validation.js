@@ -11,9 +11,9 @@ const domainEmailValidator = (value, helpers) => {
   return value;
 };
 
-
+const telefonoRegex = /^\+?[0-9\s\-]{7,20}$/;
 const passwordRegex = /^[a-zA-Z0-9]+$/;
-const allowedRoles = ["Administrador", "Supervisor", "Encargado", "Empleado", "Bodeguero", "administrador", "supervisor", "encargado", "empleado", "bodeguero"];
+const allowedRoles = ["Administrador", "Supervisor", "Empleado", "Bodeguero", "administrador", "supervisor", "empleado", "bodeguero"];
 
 
 export const registerValidation = Joi.object({
@@ -111,11 +111,23 @@ apellido: Joi.string()
       "string.empty": "El rol es obligatorio.",
     }),
     telefono: Joi.string()
-    .pattern(/^\+?[0-9\s\-]{7,20}$/)
+    .pattern(telefonoRegex)
     .allow(null, '')
     .messages({
-      "string.empty": "El teléfono es obligatorio.",
+      "String.empty": "El teléfono es obligatorio.",
       "string.pattern.base": "El teléfono debe contener solo números, espacios, guiones y puede comenzar con un '+'. Debe tener entre 7 y 20 caracteres.",
+    }),
+    estado: Joi.string()
+    .valid("Activo", "Inactivo", "Licencia")
+    .allow(null)
+    .messages({
+      "any.only": "El estado debe ser Activo, Inactivo o Licencia.",
+    }),
+    jornada: Joi.string()
+    .valid("Mañana", "Tarde", "Administrativa")
+    .allow(null)
+    .messages({
+      "any.only": "La jornada debe ser Mañana, Tarde o Administrativa.",
     }),
 })
   .unknown(false)
@@ -143,10 +155,10 @@ export async function validateRegister(data, checkEmailExists) {
   }
 
   // Validación de rol y dominio de correo
-  if (role === "empleado" || role === "bodeguero" || role === "encargado" || role === "supervisor" || role === "administrador" ) {
+  if (role === "empleado" || role === "bodeguero" || role === "supervisor" || role === "administrador" ) {
     if (!email.endsWith("@gmail.com")) {
       throw Object.assign(
-        new Error("Para el rol empleado el correo debe terminar en @gmail.com."),
+        new Error(`Para este rol, el correo debe terminar en @gmail.com.`),
         { code: "VALIDATION_ERROR" }
       );
     }

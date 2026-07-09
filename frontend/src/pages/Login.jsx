@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth.service';
 import { useAuth } from '../context/AuthContext.jsx';
 import logo from '../assets/logoSanFrancisco2-Photoroom.png';
-import cookies from 'js-cookie'; // 🔑 importar cookies
+import cookies from 'js-cookie';
 import "@styles/login.css";
 
 const Login = () => {
