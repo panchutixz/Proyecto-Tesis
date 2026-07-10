@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 const _filename = fileURLToPath(import.meta.url);
 const _dirname  = path.dirname(_filename);
 
-const envFilePath = path.resolve(_dirname, '../../../database/config/.env');
+const envFilePath = path.resolve(_dirname, ".env");
 dotenv.config({ path: envFilePath });
 
 export const HOST        = process.env.DB_HOST      || process.env.HOST || 'localhost';
