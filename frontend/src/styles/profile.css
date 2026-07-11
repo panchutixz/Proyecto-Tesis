@@ -68,3 +68,44 @@
   background-color: #1d4ed8;
   transform: translateY(0);
 }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE: solo pantallas pequeñas (móvil)
+   No modifica nada de lo anterior en desktop
+   ══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .profile-card {
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    height: auto;              /* deja de forzar 50vh, que aplastaba el contenido */
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .profile-content {
+    flex-direction: column;    /* apila imagen arriba, info abajo */
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .profile-image {
+    width: 140px;              /* tamaño fijo en vez de 35vh, evita el aplastado */
+    height: 140px;
+    margin: 0.5rem 0;
+  }
+
+  .profile-info {
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .profile-info p {
+    font-size: 1.1rem;
+  }
+
+  .profile-info button {
+    align-self: stretch;
+    text-align: center;
+  }
+}

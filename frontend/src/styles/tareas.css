@@ -170,3 +170,36 @@
   .tareas-title-wrap h2 { font-size: 14px; }
   .jornada-pill { padding: 5px 12px; font-size: 11px; }
 }
+
+/* ── Botón "Dejar evidencia" (no operativo, placeholder) ── */
+.btn-evidencia {
+  margin-left: 12px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7cb0;
+  background: #eef2fa;
+  border: 1px solid #c5d3e8;
+  border-radius: 20px;
+  cursor: not-allowed;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* Responsive: reordena la fila en móvil para que el botón no se corte */
+@media (max-width: 640px) {
+  .subtarea-item {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .subtarea-texto  { flex-basis: 100%; order: 1; }
+  .subtarea-estado { order: 2; }
+  .btn-evidencia {
+    order: 3;
+    margin-left: 0;
+    margin-top: 4px;
+    width: 100%;
+    text-align: center;
+  }
+}
