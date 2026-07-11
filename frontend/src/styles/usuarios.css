@@ -115,3 +115,58 @@
   .users-title-wrap h2 { font-size: 18px; }
   .users-table thead th, .users-table tbody td { padding: 10px 12px; font-size: 14px; }
 }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE: scroll horizontal + vertical en móvil
+   No afecta el layout de escritorio
+   ══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .users-page {
+    width: calc(100% - 16px);
+    padding: 12px;
+    margin: 12px auto;
+  }
+
+  .users-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .users-addbtn {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  /* Contenedor con scroll en ambas direcciones */
+  .users-table-wrapper {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 60vh;              /* scroll vertical si hay muchas filas */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .users-table {
+    min-width: 620px;              /* fuerza el scroll horizontal en vez de aplastar columnas */
+  }
+
+  .users-table thead th,
+  .users-table tbody td {
+    white-space: nowrap;           /* evita que el texto se corte raro */
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Barra de scroll visible y más fácil de agarrar con el dedo */
+  .users-table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .users-table-wrapper::-webkit-scrollbar-thumb {
+    background: #0c1740;
+    border-radius: 8px;
+  }
+  .users-table-wrapper::-webkit-scrollbar-track {
+    background: #eef4f6;
+  }
+}

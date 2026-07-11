@@ -14,13 +14,9 @@ const Tareas = () => {
   const { handleEditTarea }                         = useEditTarea(fetchTareas);
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
 
-  const rol           = user?.rol?.toLowerCase();
-  const isAdmin       = rol === 'administrador';
-  const isSupervisor  = rol === 'supervisor';
-  // Solo el rol "empleado" puede marcar tareas/subtareas como realizadas.
-  // Administrador y Supervisor solo pueden visualizar (readonly), igual que el admin.
-  const isEmpleado    = !isAdmin && !isSupervisor;
-  const puedeMarcar   = isEmpleado;
+  const rol     = user?.rol?.toLowerCase();
+  const isAdmin = rol === 'administrador';
+  const isEmpleado = !isAdmin;
 
   // Empleado: usa su jornada del token; Admin: puede cambiar
   const jornadaEmpleado = user?.jornada || 'Mañana';
@@ -42,7 +38,6 @@ const Tareas = () => {
 
         <div className="tareas-header-right">
           {isAdmin ? (
-            // Admin puede cambiar entre jornadas
             <div className="jornada-pills">
               {['Mañana', 'Tarde'].map(j => (
                 <button key={j}
@@ -53,7 +48,6 @@ const Tareas = () => {
               ))}
             </div>
           ) : (
-            // Empleado: solo muestra su jornada, no es clickeable
             <div className="jornada-pills">
               <span className="jornada-pill active">{jornadaEmpleado}</span>
             </div>
@@ -82,7 +76,6 @@ const Tareas = () => {
               return (
                 <div key={tarea.id} className="tarea-card">
 
-                  {/* Header clickeable */}
                   <div className="tarea-header" onClick={() => toggle(tarea.id)}>
                     <span className="tarea-chevron">{open ? '▼' : '▶'}</span>
 
@@ -100,7 +93,6 @@ const Tareas = () => {
                       {tarea.estado}
                     </span>
 
-                    {/* Botones editar/eliminar solo admin */}
                     {isAdmin && (
                       <div className="tarea-acciones" onClick={e => e.stopPropagation()}>
                         <button className="btn-tarea-editar"
@@ -115,7 +107,7 @@ const Tareas = () => {
                     )}
                   </div>
 
-                  {/* Subtareas expandidas */}
+                  {/* Subtareas expandidas — CUALQUIER usuario autenticado puede marcar */}
                   {open && (
                     <div className="subtareas-list">
                       {(tarea.subtareas || []).map(sub => {
@@ -124,11 +116,10 @@ const Tareas = () => {
                           <div key={sub.id} className="subtarea-item">
                             <div className={`subtarea-bar ${sr ? 'realizado' : 'no-realizado'}`} />
 
-                            {/* Check: solo empleado puede marcar. Admin y Supervisor: solo lectura */}
                             <div
-                              className={`subtarea-check ${sr ? 'checked' : ''} ${!puedeMarcar ? 'readonly' : ''}`}
-                              onClick={() => { if (puedeMarcar) toggleSubtarea(tarea.id, sub.id); }}
-                              title={puedeMarcar ? 'Marcar como realizado' : 'Solo el empleado puede marcar subtareas'}
+                              className={`subtarea-check ${sr ? 'checked' : ''}`}
+                              onClick={() => toggleSubtarea(tarea.id, sub.id)}
+                              title="Marcar como realizado"
                             >
                               {sr ? '✓' : ''}
                             </div>
@@ -139,6 +130,17 @@ const Tareas = () => {
                             <span className={`subtarea-estado ${sr ? 'realizado' : 'no-realizado'}`}>
                               {sr ? '✓ Realizado' : 'No Realizado'}
                             </span>
+
+                            {/* Botón "Dejar evidencia" — no operativo, próximamente */}
+                            {sr && (
+                              <button
+                                className="btn-evidencia"
+                                disabled
+                                title="Función disponible próximamente"
+                              >
+                                📎 Dejar evidencia
+                              </button>
+                            )}
                           </div>
                         );
                       })}
