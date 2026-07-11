@@ -1,17 +1,17 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from '@pages/login';
-import Home from '@pages/home';
-import Error404 from '@pages/error404';
-import Root from '@pages/root';
+import Login from '@pages/Login';
+import Home from '@pages/Home';
+import Error404 from '@pages/Error404';
+import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import AccesoDenegado from '@components/AccesoDenegado'; 
 import Profile from '@pages/profile';
 import '@styles/styles.css';
-import Register from '@pages/register';
-import Usuarios from '@pages/usuarios';
+import Register from '@pages/Register';
+import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Tareas from '@pages/tareas';
+import Tareas from '@pages/Tareas';
 import {TareasProvider} from '@context/TareasContext';
 
 import { UserProvider } from '@context/UserContext';
