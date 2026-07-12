@@ -1,4 +1,5 @@
 import { useTareas } from '@context/TareasContext.jsx';
+import { FiCheck, FiAlertCircle } from 'react-icons/fi';
 
 const Home = () => {
   const { totalTareas, tareasRealizadas, tareasNoRealizadas, actividadReciente } = useTareas();
@@ -55,7 +56,7 @@ const Home = () => {
                     <div className={`flex h-9 w-9 items-center justify-center rounded-full text-white font-bold text-sm flex-shrink-0 ${
                       item.status === 'realizada' ? 'bg-[#2f7a31]' : 'bg-[#b88d00]'
                     }`}>
-                      {item.status === 'realizada' ? '✓' : '!'}
+                      {item.status === 'realizada' ? <FiCheck /> : <FiAlertCircle />}
                     </div>
                     <span className="flex-1 text-sm text-slate-700">
                       <strong className="text-slate-900">

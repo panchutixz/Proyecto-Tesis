@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/auth.service";
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -145,7 +146,9 @@ const Sidebar = () => {
       {showLogoutModal && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-container">
-            <div className="text-4xl mb-3">⚠️</div>
+           <div className="text-4xl mb-3 flex justify-center">
+                  <FiAlertTriangle />
+            </div>
             <h3 className="modal-title">¿Desea cerrar sesión?</h3>
             <p className="modal-text">
               Se cerrará tu sesión activa en este dispositivo. Tendrás que autenticarte de nuevo para ingresar.
