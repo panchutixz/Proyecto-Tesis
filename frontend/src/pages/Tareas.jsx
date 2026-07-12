@@ -5,6 +5,16 @@ import { useTareas }         from '@context/TareasContext.jsx';
 import useCreateTarea        from '@hooks/tareas/useCreateTarea.jsx';
 import { useEditTarea }      from '@hooks/tareas/useEditTarea.jsx';
 import { useDeleteTarea }    from '@hooks/tareas/useDeleteTarea.jsx';
+import {
+  FiChevronDown,
+  FiChevronRight,
+  FiMapPin,
+  FiUser,
+  FiCheck,
+  FiEdit2,
+  FiTrash2,
+  FiPaperclip,
+} from 'react-icons/fi';
 
 const Tareas = () => {
   const { user }                                    = useAuth();
@@ -55,7 +65,7 @@ const Tareas = () => {
 
           {isAdmin && (
             <button className="tareas-addbtn" onClick={handleCreateTarea}>
-              + Asignar Tarea
+              Asignar Tarea
             </button>
           )}
         </div>
@@ -77,14 +87,16 @@ const Tareas = () => {
                 <div key={tarea.id} className="tarea-card">
 
                   <div className="tarea-header" onClick={() => toggle(tarea.id)}>
-                    <span className="tarea-chevron">{open ? '▼' : '▶'}</span>
+                    <span className="tarea-chevron">
+                      {open ? <FiChevronDown /> : <FiChevronRight />}
+                    </span>
 
                     <div className="tarea-info">
                       <p className="tarea-nombre">{tarea.nombre}</p>
                       <p className="tarea-meta">
-                        📍 {tarea.departamento} &nbsp;|&nbsp; Jornada {tarea.jornada}
+                        <FiMapPin className="meta-icon" /> {tarea.departamento} &nbsp;|&nbsp; Jornada {tarea.jornada}
                         {isAdmin && (
-                          <> &nbsp;|&nbsp; 👤 Asignado: {tarea.trabajador}</>
+                          <> &nbsp;|&nbsp; <FiUser className="meta-icon" /> Asignado: {tarea.trabajador}</>
                         )}
                       </p>
                     </div>
@@ -97,11 +109,13 @@ const Tareas = () => {
                       <div className="tarea-acciones" onClick={e => e.stopPropagation()}>
                         <button className="btn-tarea-editar"
                           onClick={() => handleEditTarea(tarea)}
-                          title="Editar tarea">✏️
+                          title="Editar tarea">
+                          <FiEdit2 />
                         </button>
                         <button className="btn-tarea-eliminar"
                           onClick={() => handleDeleteTarea(tarea)}
-                          title="Eliminar tarea">🗑️
+                          title="Eliminar tarea">
+                          <FiTrash2 />
                         </button>
                       </div>
                     )}
@@ -121,14 +135,14 @@ const Tareas = () => {
                               onClick={() => toggleSubtarea(tarea.id, sub.id)}
                               title="Marcar como realizado"
                             >
-                              {sr ? '✓' : ''}
+                              {sr && <FiCheck />}
                             </div>
 
                             <span className={`subtarea-texto ${sr ? 'realizado' : ''}`}>
                               {sub.texto}
                             </span>
                             <span className={`subtarea-estado ${sr ? 'realizado' : 'no-realizado'}`}>
-                              {sr ? '✓ Realizado' : 'No Realizado'}
+                              {sr && <FiCheck className="estado-icon" />} {sr ? 'Realizado' : 'No Realizado'}
                             </span>
 
                             {/* Botón "Dejar evidencia" — no operativo, próximamente */}
@@ -138,7 +152,7 @@ const Tareas = () => {
                                 disabled
                                 title="Función disponible próximamente"
                               >
-                                📎 Dejar evidencia
+                                <FiPaperclip className="evidencia-icon" /> Dejar evidencia
                               </button>
                             )}
                           </div>
@@ -150,7 +164,9 @@ const Tareas = () => {
               );
             })}
           </div>
-          <p className="tareas-hint">▼ Presiona una tarea para ver subtareas</p>
+          <p className="tareas-hint">
+            <FiChevronDown className="hint-icon" /> Presiona una tarea para ver subtareas
+          </p>
         </>
       )}
     </div>

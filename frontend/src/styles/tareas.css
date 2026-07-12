@@ -203,3 +203,111 @@
     text-align: center;
   }
 }
+
+/* ── Iconos de react-icons alineados con el texto ── */
+.tarea-chevron svg {
+  display: block;
+  font-size: 14px;
+}
+
+.meta-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin: 0 2px;
+}
+
+.estado-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 2px;
+}
+
+.hint-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.subtarea-check svg {
+  font-size: 13px;
+}
+
+/* ── Alineación de íconos react-icons ── */
+.tarea-chevron svg {
+  display: block;
+  font-size: 14px;
+}
+
+.meta-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin: 0 2px;
+}
+
+.estado-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 2px;
+}
+
+.hint-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.subtarea-check svg {
+  font-size: 13px;
+}
+
+/* ── Botones editar / eliminar en el header de la tarea ── */
+.tarea-acciones {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.btn-tarea-editar,
+.btn-tarea-eliminar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8eef8;               /* ícono claro, visible sobre el navy */
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-tarea-editar svg,
+.btn-tarea-eliminar svg {
+  display: block;
+  font-size: 15px;
+}
+
+.btn-tarea-editar:hover {
+  background: rgba(74, 144, 217, 0.35);   /* azul suave */
+  color: #ffffff;
+}
+
+.btn-tarea-eliminar:hover {
+  background: rgba(220, 68, 68, 0.35);    /* rojo suave */
+  color: #ffffff;
+}
+
+.btn-tarea-editar:active,
+.btn-tarea-eliminar:active {
+  transform: scale(0.92);
+}
+
+.evidencia-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
+  font-size: 12px;
+}

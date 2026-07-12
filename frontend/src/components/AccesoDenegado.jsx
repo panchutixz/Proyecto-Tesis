@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const AccesoDenegado = () => {
   const [seconds, setSeconds] = useState(5);
@@ -22,7 +23,7 @@ const AccesoDenegado = () => {
         
         {/* Icono de Advertencia Limpio */}
         <div className="text-amber-500 text-5xl mb-4 flex justify-center">
-          ⚠️
+          <FiAlertTriangle />
         </div>
         
         {/* Título */}

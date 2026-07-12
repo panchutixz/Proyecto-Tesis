@@ -5,10 +5,12 @@ import useCreateUser from "@hooks/usuario/useCreateUser.jsx";       // Hook para
 import useEditUser from "@hooks/usuario/useEditUser.jsx";           // Hook para Administrador
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 const rolColors = {
   administrador: '#0d47a1',   // azul oscuro
   supervisor: '#0288d1',         // celeste/azul
+  encargado: '#2e7d32',      // verde
   empleado: '#e65100',     // naranjo fuerte
   bodeguero: '#6a1b9a'        // púrpura
 };
@@ -84,26 +86,32 @@ const Users = () => {
                 <td>{u.estado}</td>
                 <td>{u.jornada}</td>
                 <td>
-                  {!(authUser && ["Administrador", "Supervisor", "Encargado"].includes(authUser.rol) && authUser.id === u.id) && (
-                    <button className="delete" onClick={() => handleDeleteUser(u.id)}>
-                      Eliminar
-                    </button>
-                  )}
-                  {authUser?.rol === 'Administrador' && (
-                    <button
-                      className="edit"
-                      style={{ marginLeft: "8px" }}
-                      onClick={() => handleEditUser(u.id, u)}
-                    >
-                      Editar
-                    </button>
-                  )}
+                  <div className="user-acciones">
+                    {authUser?.rol === 'Administrador' && (
+                      <button
+                        className="btn-user-editar"
+                        onClick={() => handleEditUser(u.id, u)}
+                        title="Editar usuario"
+                      >
+                        <FiEdit2 />
+                      </button>
+                    )}
+                    {!(authUser && ["Administrador", "Supervisor", "Encargado"].includes(authUser.rol) && authUser.id === u.id) && (
+                      <button
+                        className="btn-user-eliminar"
+                        onClick={() => handleDeleteUser(u.id)}
+                        title="Eliminar usuario"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7">No hay usuarios disponibles</td>
+              <td colSpan="9">No hay usuarios disponibles</td>
             </tr>
           )}
         </tbody>

@@ -170,3 +170,53 @@
     background: #eef4f6;
   }
 }
+
+/* ── Botones de acciones editar / eliminar con íconos ── */
+.user-acciones {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-user-editar,
+.btn-user-eliminar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-user-editar svg,
+.btn-user-eliminar svg {
+  display: block;
+  font-size: 15px;
+}
+
+.btn-user-editar {
+  color: #4a90d9;
+}
+
+.btn-user-editar:hover {
+  background: rgba(74, 144, 217, 0.12);
+  color: #185FA5;
+}
+
+.btn-user-eliminar {
+  color: #c0392b;
+}
+
+.btn-user-eliminar:hover {
+  background: rgba(192, 57, 43, 0.12);
+  color: #a5281a;
+}
+
+.btn-user-editar:active,
+.btn-user-eliminar:active {
+  transform: scale(0.9);
+}
