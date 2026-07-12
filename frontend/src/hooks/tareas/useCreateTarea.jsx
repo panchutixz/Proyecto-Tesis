@@ -96,7 +96,8 @@ async function asignarTareaPopup() {
       jorSel.addEventListener('change', () => {
         const jornada   = jorSel.value;
         const filtrados = todosLosUsuarios.filter(u =>
-          u.jornada?.toLowerCase() === jornada.toLowerCase()
+          u.jornada?.toLowerCase() === jornada.toLowerCase() &&
+          u.rol?.toLowerCase() === 'empleado'
         );
         trabSel.innerHTML = filtrados.length
           ? '<option value="" disabled selected>Seleccionar trabajador...</option>' +
