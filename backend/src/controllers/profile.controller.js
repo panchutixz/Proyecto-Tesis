@@ -2,6 +2,7 @@ import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../config/configDb.js";
 import { UserEntity } from "../entities/user.entity.js";
+import { passwordRegex } from "../validations/usuario.validation.js";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
@@ -44,10 +45,10 @@ export async function getPrivateProfile(req, res) {
 export async function updatePrivateProfile(req, res) {
   try {
     const userFromToken = req.user;
-    const { email, password } = req.body;
+    const { nombre, apellido, email, currentPassword, newPassword } = req.body;
 
-    if (!email && !password) {
-      return handleErrorClient(res, 400, "Debes proporcionar email y/o password para actualizar.");
+    if (!nombre && !apellido && !email && !newPassword) {
+      return handleErrorClient(res, 400, "No enviaste ningún cambio para actualizar.");
     }
 
     const userRepository = AppDataSource.getRepository(UserEntity);
@@ -56,14 +57,43 @@ export async function updatePrivateProfile(req, res) {
       return handleErrorClient(res, 404, "Usuario no encontrado.");
     }
 
-    if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
+        // Cambio de contraseña: exige la contraseña actual y la valida
+    if (newPassword) {
+      if (!currentPassword) {
+        return handleErrorClient(res, 400, "Debes ingresar tu contraseña actual para definir una nueva.");
+      }
+
+      // Mismas reglas que en el registro: 8-26 caracteres, solo letras y números
+      if (newPassword.length < 8) {
+        return handleErrorClient(res, 400, "La nueva contraseña debe tener al menos 8 caracteres.");
+      }
+      if (newPassword.length > 26) {
+        return handleErrorClient(res, 400, "La nueva contraseña no puede exceder los 26 caracteres.");
+      }
+      if (!passwordRegex.test(newPassword)) {
+        return handleErrorClient(res, 400, "La contraseña solo puede contener letras y números. No se permiten símbolos especiales.");
+      }
+
+      const passwordValida = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordValida) {
+        return handleErrorClient(res, 400, "La contraseña actual no es correcta.");
+      }
+      user.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    if (nombre)   user.nombre   = nombre;
+    if (apellido) user.apellido = apellido;
+    if (email)    user.email    = email;
 
     await userRepository.save(user);
-    delete user.password;
-    handleSuccess(res, 200, "Perfil privado actualizado exitosamente", {
-      message: `¡Hola, ${user.email}! Tu perfil ha sido actualizado.`,
-      userData: user,
+
+    handleSuccess(res, 200, "Perfil actualizado exitosamente", {
+      email:        user.email,
+      nombre:       user.nombre,
+      apellido:     user.apellido,
+      rol:          user.rol,
+      rut:          user.rut,
+      foto_perfil:  user.foto_perfil,
     });
   } catch (error) {
     handleErrorServer(res, 500, "Error al actualizar perfil", error.message);
