@@ -12,7 +12,9 @@ import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Tareas from '@pages/Tareas';
+import Insumos from '@pages/Insumos';    
 import {TareasProvider} from '@context/TareasContext';
+
 
 import { UserProvider } from '@context/UserContext';
 
@@ -66,15 +68,20 @@ const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
+          {
+            path: "insumos",                                  // ← NUEVO
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "bodeguero"]}>
+                <Insumos />
+              </ProtectedRoute>
+            ),
+          },
         ]
       },
-
-      
       {
         path: 'acceso-denegado',
         element: <AccesoDenegado />
       },
-      
       {
         path: '*',
         element: <Error404 />
@@ -82,8 +89,7 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
-
+       
 ReactDOM.createRoot(document.getElementById('root')).render(
   <UserProvider>
     <RouterProvider router={router} />

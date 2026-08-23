@@ -1,0 +1,84 @@
+.insumo-counter-card {
+  background: #f4f8fc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 10px 14px;
+  text-align: center;
+  min-width: 130px;
+}
+
+.insumo-counter-nombre {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1f5e;
+  margin: 0 0 4px;
+  line-height: 1.25;
+}
+
+.insumo-counter-disponible {
+  font-size: 11px;
+  color: #6b7cb0;
+  margin: 0 0 10px;
+}
+
+.insumo-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.insumo-counter-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #c5d3e8;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  padding: 0;
+}
+
+.insumo-counter-btn svg {
+  font-size: 14px;
+}
+
+.insumo-counter-btn.minus {
+  color: #c0392b;
+}
+.insumo-counter-btn.minus:hover:not(:disabled) {
+  background: rgba(192, 57, 43, 0.1);
+}
+
+.insumo-counter-btn.plus {
+  color: #2e7d32;
+}
+.insumo-counter-btn.plus:hover:not(:disabled) {
+  background: rgba(46, 125, 50, 0.1);
+}
+
+.insumo-counter-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.insumo-counter-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.insumo-counter-valor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #1a1f5e;
+  background: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1f5e;
+}

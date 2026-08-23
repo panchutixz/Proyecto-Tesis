@@ -109,6 +109,18 @@ const Sidebar = () => {
               </button>
             </li>
             )}
+
+            {/* Insumos — visible solo para administrador y bodeguero */}
+                {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
+              <li>
+                    <button
+                        onClick={() => goTo("/insumos")}
+                        className={navItemClass("/insumos")}
+                      >
+                 Insumos
+              </button>
+            </li>
+            )}
             
             {/* Tareas — todos los roles */}
             <li>
