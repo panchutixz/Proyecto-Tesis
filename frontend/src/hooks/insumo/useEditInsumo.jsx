@@ -1,13 +1,17 @@
 import Swal from 'sweetalert2';
-import { CreateInsumo } from '@services/insumos.service.js';
+import { UpdateInsumo } from '@services/insumos.service.js';
 import { CATEGORIAS_INSUMO, UNIDADES_INSUMO } from './insumoCatalogos.js';
 
-async function crearInsumoPopup() {
-  const categoriaOpts = CATEGORIAS_INSUMO.map(c => `<option value="${c}">${c}</option>`).join('');
-  const unidadOpts    = UNIDADES_INSUMO.map(u => `<option value="${u}">${u}</option>`).join('');
+async function editarInsumoPopup(insumo) {
+  const categoriaOpts = CATEGORIAS_INSUMO.map(c =>
+    `<option value="${c}" ${c === insumo.categoria ? 'selected' : ''}>${c}</option>`
+  ).join('');
+  const unidadOpts = UNIDADES_INSUMO.map(u =>
+    `<option value="${u}" ${u === insumo.unidad ? 'selected' : ''}>${u}</option>`
+  ).join('');
 
   const { value } = await Swal.fire({
-    title: 'Nuevo Insumo',
+    title: 'Editar Insumo',
     width: 520,
     html: `
       <style>
@@ -20,35 +24,29 @@ async function crearInsumoPopup() {
       <div class="sf-form">
         <div class="full">
           <label>Nombre del insumo</label>
-          <input id="sf-nombre" placeholder="Ej: Limpiavidrios" />
+          <input id="sf-nombre" value="${insumo.nombre}" />
         </div>
         <div>
           <label>Categoría</label>
-          <select id="sf-categoria">
-            <option value="" disabled selected>Seleccionar...</option>
-            ${categoriaOpts}
-          </select>
+          <select id="sf-categoria">${categoriaOpts}</select>
         </div>
         <div>
           <label>Unidad</label>
-          <select id="sf-unidad">
-            <option value="" disabled selected>Seleccionar...</option>
-            ${unidadOpts}
-          </select>
+          <select id="sf-unidad">${unidadOpts}</select>
         </div>
         <div>
-          <label>Cantidad inicial</label>
-          <input id="sf-cantidad" type="number" min="0" max="9999" placeholder="0" />
+          <label>Cantidad actual</label>
+          <input id="sf-cantidad" type="number" min="0" max="9999" value="${insumo.cantidad}" />
         </div>
         <div>
           <label>Stock mínimo</label>
-          <input id="sf-stockmin" type="number" min="0" max="9999" placeholder="10" />
+          <input id="sf-stockmin" type="number" min="0" max="9999" value="${insumo.stock_minimo}" />
         </div>
       </div>
     `,
     focusConfirm: false,
     showCancelButton: true,
-    confirmButtonText: 'Crear Insumo',
+    confirmButtonText: 'Guardar Cambios',
     cancelButtonText:  'Cancelar',
     confirmButtonColor: '#1a1f5e',
 
@@ -65,16 +63,16 @@ async function crearInsumoPopup() {
       }
 
       try {
-        const res = await CreateInsumo({
+        const res = await UpdateInsumo(insumo.id, {
           nombre,
           categoria,
           unidad,
-          cantidad: cantidad ? Number(cantidad) : 0,
-          stock_minimo: stockMinimo ? Number(stockMinimo) : 10,
+          cantidad: Number(cantidad),
+          stock_minimo: Number(stockMinimo),
         });
         return res?.data || res;
       } catch (err) {
-        Swal.showValidationMessage(err.message || 'Error al crear el insumo.');
+        Swal.showValidationMessage(err.message || 'Error al actualizar el insumo.');
         return false;
       }
     },
@@ -83,28 +81,27 @@ async function crearInsumoPopup() {
   return value || null;
 }
 
-export const useCreateInsumo = (fetchInsumos) => {
-  const handleCreateInsumo = async () => {
+export const useEditInsumo = (fetchInsumos) => {
+  const handleEditInsumo = async (insumo) => {
     try {
-      const result = await crearInsumoPopup();
+      const result = await editarInsumoPopup(insumo);
       if (!result) return;
 
       await fetchInsumos();
 
       await Swal.fire({
-        title: '¡Insumo creado exitosamente!',
+        title: 'Insumo actualizado',
         icon: 'success',
-        confirmButtonText: 'Aceptar',
-        timer: 2000,
+        timer: 1800,
         timerProgressBar: true,
-        confirmButtonColor: '#1a1f5e',
+        showConfirmButton: false,
       });
     } catch (err) {
-      console.error('Error en handleCreateInsumo:', err);
+      console.error('Error en handleEditInsumo:', err);
     }
   };
 
-  return { handleCreateInsumo };
+  return { handleEditInsumo };
 };
 
-export default useCreateInsumo;
+export default useEditInsumo;

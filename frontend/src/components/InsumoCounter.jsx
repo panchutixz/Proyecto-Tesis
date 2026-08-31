@@ -3,22 +3,21 @@ import { FiMinus, FiPlus } from "react-icons/fi";
 const MIN_VALOR = 0;
 const MAX_VALOR = 99;
 
-/**
- * Contador circular reutilizable para seleccionar cantidad de un insumo.
- *
- * Props:
- *  - nombre:      string  → nombre del insumo (ej: "Papel higiénico")
- *  - disponible:  number  → stock actual en el almacén (solo referencia visual)
- *  - valor:       number  → cantidad actualmente seleccionada
- *  - onChange:    (nuevoValor: number) => void
- */
 const InsumoCounter = ({ nombre, disponible, valor, onChange }) => {
-  const decrementar = () => {
-    if (valor > MIN_VALOR) onChange(valor - 1);
+  const maxPermitido = Math.min(MAX_VALOR, Number(disponible) || MAX_VALOR);
+
+  const clamp = (n) => Math.max(MIN_VALOR, Math.min(maxPermitido, n));
+
+  const decrementar = () => onChange(clamp(valor - 1));
+  const incrementar = () => onChange(clamp(valor + 1));
+
+  const handleInputChange = (e) => {
+    const soloDigitos = e.target.value.replace(/[^0-9]/g, "");
+    onChange(soloDigitos === "" ? 0 : clamp(Number(soloDigitos)));
   };
 
-  const incrementar = () => {
-    if (valor < MAX_VALOR) onChange(valor + 1);
+  const handleBlur = (e) => {
+    if (e.target.value === "") onChange(0);
   };
 
   return (
@@ -37,13 +36,22 @@ const InsumoCounter = ({ nombre, disponible, valor, onChange }) => {
           <FiMinus />
         </button>
 
-        <span className="insumo-counter-valor">{valor}</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          maxLength={2}
+          className="insumo-counter-valor"
+          value={valor}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          aria-label={`Cantidad de ${nombre}`}
+        />
 
         <button
           type="button"
           className="insumo-counter-btn plus"
           onClick={incrementar}
-          disabled={valor >= MAX_VALOR}
+          disabled={valor >= maxPermitido}
           aria-label={`Aumentar cantidad de ${nombre}`}
         >
           <FiPlus />

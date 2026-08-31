@@ -49,3 +49,27 @@ export async function ReponerInsumos(reposicionData) {
     throw error;
   }
 }
+
+export async function UpdateInsumo(id, insumoData) {
+  try {
+    const response = await axios.put(`/insumos/${id}`, insumoData);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+    }
+    throw error;
+  }
+}
+
+export async function DeleteInsumo(id) {
+  try {
+    const response = await axios.delete(`/insumos/${id}`);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+    }
+    throw error;
+  }
+}

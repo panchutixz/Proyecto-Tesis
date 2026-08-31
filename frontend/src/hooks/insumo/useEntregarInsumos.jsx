@@ -101,36 +101,43 @@ async function entregarInsumosPopup() {
             <button type="button" class="insumo-counter-btn minus">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
-            <span class="insumo-counter-valor">0</span>
+            <input type="text" inputmode="numeric" maxlength="2" class="insumo-counter-valor" value="0" />
             <button type="button" class="insumo-counter-btn plus">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
         `;
 
-        const valorSpan = card.querySelector('.insumo-counter-valor');
-        const btnMinus  = card.querySelector('.minus');
-        const btnPlus   = card.querySelector('.plus');
+        const valorInput = card.querySelector('.insumo-counter-valor');
+        const btnMinus   = card.querySelector('.minus');
+        const btnPlus    = card.querySelector('.plus');
         const maxDisponible = Math.min(MAX_VALOR, Number(insumo.cantidad));
 
-        const actualizar = () => {
-          const valor = Number(card.dataset.valor);
-          valorSpan.textContent = valor;
-          btnMinus.disabled = valor <= MIN_VALOR;
-          btnPlus.disabled  = valor >= maxDisponible;
+        const setValor = (nuevoValor) => {
+          const clamped = Math.max(MIN_VALOR, Math.min(maxDisponible, nuevoValor));
+          card.dataset.valor = clamped;
+          valorInput.value = clamped;
+          btnMinus.disabled = clamped <= MIN_VALOR;
+          btnPlus.disabled  = clamped >= maxDisponible;
         };
 
-        btnMinus.addEventListener('click', () => {
-          const valor = Number(card.dataset.valor);
-          if (valor > MIN_VALOR) { card.dataset.valor = valor - 1; actualizar(); }
+        btnMinus.addEventListener('click', () => setValor(Number(card.dataset.valor) - 1));
+        btnPlus.addEventListener('click',  () => setValor(Number(card.dataset.valor) + 1));
+
+        // Permite escribir directamente el número dentro del círculo
+        valorInput.addEventListener('input', () => {
+          const soloDigitos = valorInput.value.replace(/[^0-9]/g, '');
+          valorInput.value = soloDigitos;
+        });
+        valorInput.addEventListener('blur', () => {
+          const num = valorInput.value === '' ? 0 : parseInt(valorInput.value, 10);
+          setValor(isNaN(num) ? 0 : num);
+        });
+        valorInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') valorInput.blur();
         });
 
-        btnPlus.addEventListener('click', () => {
-          const valor = Number(card.dataset.valor);
-          if (valor < maxDisponible) { card.dataset.valor = valor + 1; actualizar(); }
-        });
-
-        actualizar();
+        setValor(0);
         countersBox.appendChild(card);
       });
     },

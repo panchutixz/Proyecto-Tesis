@@ -156,3 +156,53 @@ export async function reponerInsumos(req, res) {
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+
+// ── PUT /api/insumos/:id ────────────────────────────────────────────────────
+export async function updateInsumo(req, res) {
+  try {
+    const rol = req.user?.rol?.toLowerCase();
+    if (!["administrador", "bodeguero"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para editar insumos." });
+    }
+
+    const { id } = req.params;
+    const { nombre, categoria, unidad, cantidad, stock_minimo } = req.body;
+
+    const repo = AppDataSource.getRepository(InsumoEntity);
+    const insumo = await repo.findOne({ where: { id: Number(id) } });
+    if (!insumo) return res.status(404).json({ message: "Insumo no encontrado." });
+
+    if (nombre)        insumo.nombre        = nombre;
+    if (categoria)      insumo.categoria      = categoria;
+    if (unidad)          insumo.unidad          = unidad;
+    if (cantidad !== undefined)     insumo.cantidad     = Number(cantidad);
+    if (stock_minimo !== undefined) insumo.stock_minimo = Number(stock_minimo);
+
+    const guardado = await repo.save(insumo);
+    return res.status(200).json({ message: "Insumo actualizado.", data: withEstado(guardado) });
+  } catch (error) {
+    console.error("Error en updateInsumo:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}
+
+// ── DELETE /api/insumos/:id ─────────────────────────────────────────────────
+export async function deleteInsumo(req, res) {
+  try {
+    const rol = req.user?.rol?.toLowerCase();
+    if (!["administrador", "bodeguero"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para eliminar insumos." });
+    }
+
+    const { id } = req.params;
+    const repo = AppDataSource.getRepository(InsumoEntity);
+    const insumo = await repo.findOne({ where: { id: Number(id) } });
+    if (!insumo) return res.status(404).json({ message: "Insumo no encontrado." });
+
+    await repo.remove(insumo);
+    return res.status(200).json({ message: "Insumo eliminado correctamente." });
+  } catch (error) {
+    console.error("Error en deleteInsumo:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}

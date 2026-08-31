@@ -81,4 +81,21 @@
   font-size: 16px;
   font-weight: 800;
   color: #1a1f5e;
+  text-align: center;
+  padding: 0;
+  font-family: inherit;
+  cursor: text;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.insumo-counter-valor::-webkit-outer-spin-button,
+.insumo-counter-valor::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.insumo-counter-valor:focus {
+  outline: none;
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
 }
