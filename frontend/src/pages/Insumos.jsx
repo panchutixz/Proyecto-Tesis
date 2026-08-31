@@ -1,7 +1,9 @@
 import "@styles/insumos.css";
-import "@styles/insumoCounter.css";                          // ← NUEVO
+import "@styles/insumoCounter.css";
 import useGetInsumo from "@hooks/insumo/useGetInsumo.jsx";
-import useEntregarInsumos from "@hooks/insumo/useEntregarInsumos.jsx";  // ← NUEVO
+import useEntregarInsumos from "@hooks/insumo/useEntregarInsumos.jsx";
+import useReponerInsumos from "@hooks/insumo/useReponerInsumos.jsx";
+import useCreateInsumo from "@hooks/insumo/useCreateInsumo.jsx";       // ← NUEVO
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -26,11 +28,15 @@ function estadoStyle(estado) {
 const Insumos = () => {
   const { user: authUser } = useAuth();
   const { insumos, fetchInsumos } = useGetInsumo();
-  const { handleEntregarInsumos } = useEntregarInsumos(fetchInsumos);   // ← NUEVO
+  const { handleEntregarInsumos } = useEntregarInsumos(fetchInsumos);
+  const { handleReponerInsumos }  = useReponerInsumos(fetchInsumos);
+  const { handleCreateInsumo }    = useCreateInsumo(fetchInsumos);      // ← NUEVO
 
   useEffect(() => {
     fetchInsumos();
   }, []);
+
+  const rol = authUser?.rol;
 
   return (
     <div className="insumos-page">
@@ -39,11 +45,30 @@ const Insumos = () => {
           <h2>LISTADO DE INSUMOS</h2>
           <p className="insumos-subtitle">— estado actual del almacén</p>
         </div>
-        {authUser?.rol === "Administrador" && (
-          <button className="insumos-addbtn" onClick={handleEntregarInsumos}>
-            Entregar Insumos
-          </button>
-        )}
+
+        <div className="insumos-header-actions">
+          {rol === "Administrador" && (
+            <>
+              <button className="insumos-addbtn secondary" onClick={handleCreateInsumo}>
+                + Nuevo Insumo
+              </button>
+              <button className="insumos-addbtn" onClick={handleEntregarInsumos}>
+                Entregar Insumos
+              </button>
+            </>
+          )}
+
+          {rol === "Bodeguero" && (
+            <>
+              <button className="insumos-addbtn secondary" onClick={handleCreateInsumo}>
+                + Nuevo Insumo
+              </button>
+              <button className="insumos-addbtn" onClick={handleReponerInsumos}>
+                Actualizar Almacén
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="insumos-table-wrapper">

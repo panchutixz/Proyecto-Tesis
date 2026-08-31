@@ -152,3 +152,19 @@
     background: #eef4f6;
   }
 }
+.insumos-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.insumos-addbtn.secondary {
+  background: #ffffff;
+  color: #1a1f5e;
+  border: 1px solid #1a1f5e;
+  box-shadow: none;
+}
+
+.insumos-addbtn.secondary:hover {
+  background: #eef4fb;
+}
