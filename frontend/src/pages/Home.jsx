@@ -1,8 +1,24 @@
+import { useEffect } from 'react';
 import { useTareas } from '@context/TareasContext.jsx';
-import { FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { useAuth } from '@context/AuthContext.jsx';
+import useGetInsumo from '@hooks/insumo/useGetInsumo.jsx';
+import { FiCheck, FiAlertCircle, FiPackage, FiAlertTriangle } from 'react-icons/fi';
 
 const Home = () => {
   const { totalTareas, tareasRealizadas, tareasNoRealizadas, actividadReciente } = useTareas();
+  const { user } = useAuth();
+  const { insumos, fetchInsumos } = useGetInsumo();
+
+  const rol = user?.rol;
+  const puedeVerInsumos = rol === 'Administrador' || rol === 'Bodeguero';
+
+  useEffect(() => {
+    if (puedeVerInsumos) fetchInsumos();
+  }, [puedeVerInsumos]);
+
+  const insumosBajo    = insumos.filter(i => i.estado === 'Bajo').length;
+  const insumosAgotados = insumos.filter(i => i.estado === 'Agotado').length;
+  const totalInsumos   = insumos.length;
 
   return (
     <div className="min-h-screen bg-[#ebf3fb] text-slate-900">
@@ -15,7 +31,7 @@ const Home = () => {
             </h1>
           </section>
 
-          {/* Stat cards */}
+          {/* Stat cards — Tareas */}
           <section className="grid gap-6 md:grid-cols-3">
             {[
               { label:'Tareas designadas', value:totalTareas,        bar:'bg-[#172651]', num:'text-[#172651]' },
@@ -30,6 +46,43 @@ const Home = () => {
             ))}
           </section>
 
+          {/* Stat cards — Insumos (solo Admin / Bodeguero) */}
+          {puedeVerInsumos && (
+            <section>
+              <h2 className="text-xl font-bold uppercase tracking-[0.25em] text-[#172651] mb-4">
+                Estado del Almacén
+              </h2>
+              <div className="grid gap-6 md:grid-cols-3">
+                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                  <div className="mb-5 h-2 w-24 rounded-full bg-[#172651]" />
+                  <div className="flex items-center gap-2 mb-4">
+                    <FiPackage className="text-[#5b78a2]" />
+                    <p className="text-sm uppercase tracking-[0.25em] text-[#5b78a2]">Insumos registrados</p>
+                  </div>
+                  <p className="text-[4rem] font-bold leading-none text-[#172651]">{totalInsumos}</p>
+                </article>
+
+                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                  <div className="mb-5 h-2 w-24 rounded-full bg-[#b88d00]" />
+                  <div className="flex items-center gap-2 mb-4">
+                    <FiAlertCircle className="text-[#5b78a2]" />
+                    <p className="text-sm uppercase tracking-[0.25em] text-[#5b78a2]">Insumos con stock bajo</p>
+                  </div>
+                  <p className="text-[4rem] font-bold leading-none text-[#b88d00]">{insumosBajo}</p>
+                </article>
+
+                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                  <div className="mb-5 h-2 w-24 rounded-full bg-[#c0392b]" />
+                  <div className="flex items-center gap-2 mb-4">
+                    <FiAlertTriangle className="text-[#5b78a2]" />
+                    <p className="text-sm uppercase tracking-[0.25em] text-[#5b78a2]">Insumos agotados</p>
+                  </div>
+                  <p className="text-[4rem] font-bold leading-none text-[#c0392b]">{insumosAgotados}</p>
+                </article>
+              </div>
+            </section>
+          )}
+
           {/* Actividad reciente con scroll */}
           <section className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
             <h2 className="text-xl font-bold uppercase tracking-[0.25em] text-[#172651] mb-6">
@@ -41,7 +94,6 @@ const Home = () => {
                 No hay actividad reciente.
               </div>
             ) : (
-              /* max-h con overflow-y-auto → scroll cuando hay más de 3 items */
               <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
                 {actividadReciente.map((item, i) => (
                   <div
