@@ -111,16 +111,29 @@ const Sidebar = () => {
             )}
 
             {/* Insumos — visible solo para administrador y bodeguero */}
-                {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
-              <li>
-                    <button
-                        onClick={() => goTo("/insumos")}
-                        className={navItemClass("/insumos")}
-                      >
-                 Insumos
-              </button>
-            </li>
-            )}
+              {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
+                <li>
+                  <button
+                      onClick={() => goTo("/insumos")}
+                      className={navItemClass("/insumos")}
+                  >
+                     Insumos
+                  </button>
+
+                </li>
+              )}
+
+            {/* Historial de Insumos — visible solo para administrador y bodeguero */}
+              {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
+                <li>
+                  <button
+                    onClick={() => goTo("/historial-insumos")}
+                    className={navItemClass("/historial-insumos")}
+                  >
+                    Historial Insumos
+                  </button>
+                </li>
+              )}
             
             {/* Tareas — todos los roles */}
             <li>

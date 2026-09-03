@@ -1,0 +1,153 @@
+.historial-page {
+  max-width: 1300px;
+  width: calc(100% - 48px);
+  margin: 28px auto;
+  padding: 28px 32px;
+  background: #eaf4f7;
+  border-radius: 4px;
+}
+
+.historial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.historial-title-wrap h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #10223f;
+  letter-spacing: 2px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.historial-subtitle {
+  margin: 6px 0 0 0;
+  color: #3b5568;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.historial-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.jornada-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.jornada-pill {
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1px solid #c5d3e8;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7cb0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.jornada-pill.active {
+  background: #1a1f5e;
+  color: #fff;
+  border-color: #1a1f5e;
+}
+
+.historial-pdfbtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg,#2b6fb2,#1e4e8a);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(16,34,63,0.12);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.historial-pdfbtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.historial-table-wrapper {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(16,34,63,0.06);
+}
+
+.historial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #22313a;
+}
+
+.historial-table thead th {
+  background: linear-gradient(90deg,#16224b,#0c1740);
+  color: #fff;
+  font-weight: 800;
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.historial-table tbody td {
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef4f6;
+  background: #fff;
+}
+
+.historial-table tbody tr:nth-child(even) td {
+  background: #f4f8fb;
+}
+
+.col-center {
+  text-align: center;
+}
+
+.historial-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  display: inline-block;
+}
+
+.historial-badge.entrega {
+  background: #185FA5;
+}
+
+.historial-badge.reposicion {
+  background: #2e7d32;
+}
+
+@media (max-width: 768px) {
+  .historial-page {
+    width: calc(100% - 16px);
+    padding: 12px;
+    margin: 12px auto;
+  }
+  .historial-table-wrapper {
+    overflow-x: auto;
+  }
+  .historial-table {
+    min-width: 780px;
+  }
+}

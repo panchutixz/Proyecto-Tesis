@@ -73,3 +73,15 @@ export async function DeleteInsumo(id) {
     throw error;
   }
 }
+export async function GetMovimientosInsumos(jornada) {
+  try {
+    const query = jornada && jornada !== 'Todas' ? `?jornada=${encodeURIComponent(jornada)}` : '';
+    const response = await axios.get(`/insumos/movimientos${query}`);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+    }
+    throw error;
+  }
+}

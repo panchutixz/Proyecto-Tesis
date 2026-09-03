@@ -8,15 +8,17 @@ import {
   deleteInsumo,
   entregarInsumos,
   reponerInsumos,
+  getMovimientos,
 } from "../controllers/insumo.controller.js";
 
 const router = Router();
 
-router.get(    "/",           authMiddleware, getInsumos);
-router.post(   "/",           authMiddleware, createInsumo);
-router.put(    "/:id",        authMiddleware, updateInsumo);
-router.delete( "/:id",        authMiddleware, deleteInsumo);
-router.patch(  "/entregar",   authMiddleware, entregarInsumos);
-router.patch(  "/reponer",    authMiddleware, reponerInsumos);
+router.get(    "/",              authMiddleware, getInsumos);
+router.get(    "/movimientos",   authMiddleware, getMovimientos);
+router.post(   "/",              authMiddleware, createInsumo);
+router.put(    "/:id",           authMiddleware, updateInsumo);
+router.delete( "/:id",           authMiddleware, deleteInsumo);
+router.patch(  "/entregar",      authMiddleware, entregarInsumos);
+router.patch(  "/reponer",       authMiddleware, reponerInsumos);
 
 export default router;

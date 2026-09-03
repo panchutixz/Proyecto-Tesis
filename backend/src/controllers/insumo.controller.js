@@ -1,6 +1,7 @@
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
 import { InsumoEntity }  from "../entities/insumo.entity.js";
+import { MovimientoInsumoEntity } from "../entities/movimientoInsumo.entity.js";
 
 // Calcula el estado del insumo según su cantidad y stock mínimo
 function getEstado(cantidad, stockMinimo) {
@@ -62,7 +63,6 @@ export async function createInsumo(req, res) {
 }
 
 // ── PATCH /api/insumos/entregar ─────────────────────────────────────────────
-// Descuenta stock de varios insumos a la vez (entrega a un trabajador). Solo administrador.
 export async function entregarInsumos(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
@@ -71,20 +71,19 @@ export async function entregarInsumos(req, res) {
     }
 
     const { trabajadorId, trabajadorNombre, jornada, items } = req.body;
-    // items = [{ insumoId: 1, cantidad: 5 }, { insumoId: 2, cantidad: 2 }, ...]
 
     if (!trabajadorId || !jornada || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Faltan datos de la entrega." });
     }
 
     const repo = AppDataSource.getRepository(InsumoEntity);
+    const movRepo = AppDataSource.getRepository(MovimientoInsumoEntity);
     const itemsValidos = items.filter(i => Number(i.cantidad) > 0);
 
     if (itemsValidos.length === 0) {
       return res.status(400).json({ message: "Debes indicar al menos un insumo con cantidad mayor a 0." });
     }
 
-    // Valida stock suficiente antes de descontar
     for (const item of itemsValidos) {
       const insumo = await repo.findOne({ where: { id: Number(item.insumoId) } });
       if (!insumo) {
@@ -97,13 +96,26 @@ export async function entregarInsumos(req, res) {
       }
     }
 
-    // Descuenta stock
     const actualizados = [];
     for (const item of itemsValidos) {
       const insumo = await repo.findOne({ where: { id: Number(item.insumoId) } });
       insumo.cantidad -= Number(item.cantidad);
       const guardado = await repo.save(insumo);
       actualizados.push(withEstado(guardado));
+
+      // Registra el movimiento en el historial
+      const movimiento = movRepo.create({
+        insumo_id: guardado.id,
+        insumo_nombre: guardado.nombre,
+        tipo: "Entrega",
+        cantidad: Number(item.cantidad),
+        jornada,
+        trabajador_id: String(trabajadorId),
+        trabajador_nombre: trabajadorNombre || "",
+        realizado_por_id: String(req.user?.id || req.user?.rut || ""),
+        realizado_por_nombre: req.user?.nombre || req.user?.email || "",
+      });
+      await movRepo.save(movimiento);
     }
 
     return res.status(200).json({
@@ -117,7 +129,6 @@ export async function entregarInsumos(req, res) {
 }
 
 // ── PATCH /api/insumos/reponer ──────────────────────────────────────────────
-// Agrega stock a varios insumos a la vez (reposición de bodega). Solo bodeguero.
 export async function reponerInsumos(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
@@ -126,7 +137,6 @@ export async function reponerInsumos(req, res) {
     }
 
     const { items } = req.body;
-    // items = [{ insumoId: 1, cantidad: 20 }, { insumoId: 2, cantidad: 10 }, ...]
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Debes indicar al menos un insumo." });
@@ -138,6 +148,7 @@ export async function reponerInsumos(req, res) {
     }
 
     const repo = AppDataSource.getRepository(InsumoEntity);
+    const movRepo = AppDataSource.getRepository(MovimientoInsumoEntity);
     const actualizados = [];
 
     for (const item of itemsValidos) {
@@ -148,6 +159,20 @@ export async function reponerInsumos(req, res) {
       insumo.cantidad += Number(item.cantidad);
       const guardado = await repo.save(insumo);
       actualizados.push(withEstado(guardado));
+
+      // Registra el movimiento en el historial
+      const movimiento = movRepo.create({
+        insumo_id: guardado.id,
+        insumo_nombre: guardado.nombre,
+        tipo: "Reposición",
+        cantidad: Number(item.cantidad),
+        jornada: null,
+        trabajador_id: null,
+        trabajador_nombre: null,
+        realizado_por_id: String(req.user?.id || req.user?.rut || ""),
+        realizado_por_nombre: req.user?.nombre || req.user?.email || "",
+      });
+      await movRepo.save(movimiento);
     }
 
     return res.status(200).json({ message: "Almacén actualizado correctamente.", data: actualizados });
@@ -203,6 +228,34 @@ export async function deleteInsumo(req, res) {
     return res.status(200).json({ message: "Insumo eliminado correctamente." });
   } catch (error) {
     console.error("Error en deleteInsumo:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}
+
+// ── GET /api/insumos/movimientos ────────────────────────────────────────────
+export async function getMovimientos(req, res) {
+  try {
+    const rol = req.user?.rol?.toLowerCase();
+    if (!["administrador", "bodeguero"].includes(rol)) {
+      return res.status(403).json({ message: "Sin permisos para ver el historial." });
+    }
+
+    const { jornada } = req.query;
+    const movRepo = AppDataSource.getRepository(MovimientoInsumoEntity);
+
+    const where = {};
+    if (jornada && jornada !== "Todas") {
+      where.jornada = jornada;
+    }
+
+    const movimientos = await movRepo.find({
+      where,
+      order: { fecha: "DESC" },
+    });
+
+    return res.status(200).json({ message: "Historial obtenido.", data: movimientos });
+  } catch (error) {
+    console.error("Error en getMovimientos:", error);
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }
