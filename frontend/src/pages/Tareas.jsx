@@ -1,5 +1,5 @@
 import '@styles/tareas.css';
-import { useState }          from 'react';
+import { useState, useRef }  from 'react';
 import { useAuth }           from '@context/AuthContext.jsx';
 import { useTareas }         from '@context/TareasContext.jsx';
 import useCreateTarea        from '@hooks/tareas/useCreateTarea.jsx';
@@ -14,12 +14,16 @@ import {
   FiEdit2,
   FiTrash2,
   FiPaperclip,
+  FiImage,
 } from 'react-icons/fi';
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 
 const Tareas = () => {
   const { user }                                    = useAuth();
   const { tareas, loading, fetchTareas,
-          agregarTareaLocal, toggleSubtarea }       = useTareas();
+          agregarTareaLocal, toggleSubtarea,
+          subirEvidencia }                          = useTareas();
   const { handleCreateTarea }                       = useCreateTarea(fetchTareas, agregarTareaLocal);
   const { handleEditTarea }                         = useEditTarea(fetchTareas);
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
@@ -28,13 +32,34 @@ const Tareas = () => {
   const isAdmin = rol === 'administrador';
   const isEmpleado = !isAdmin;
 
-  // Empleado: usa su jornada del token; Admin: puede cambiar
   const jornadaEmpleado = user?.jornada || 'Mañana';
   const [jornada, setJornada]   = useState(isEmpleado ? jornadaEmpleado : 'Mañana');
   const [expanded, setExpanded] = useState({});
+  const [subiendoId, setSubiendoId] = useState(null);
+  const fileInputRefs = useRef({});
 
   const toggle    = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }));
   const filtradas = tareas.filter(t => t.jornada === jornada);
+
+  const getImageUrl = (path) => `${BASE_URL.replace('/api', '')}${path}`;
+
+  const handleSeleccionarArchivo = (tareaId) => {
+    fileInputRefs.current[tareaId]?.click();
+  };
+
+  const handleArchivoElegido = async (tareaId, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setSubiendoId(tareaId);
+    const resultado = await subirEvidencia(tareaId, file);
+    setSubiendoId(null);
+    e.target.value = '';
+
+    if (!resultado.ok) {
+      alert(resultado.message);
+    }
+  };
 
   return (
     <div className="tareas-page">
@@ -121,7 +146,6 @@ const Tareas = () => {
                     )}
                   </div>
 
-                  {/* Subtareas expandidas — CUALQUIER usuario autenticado puede marcar */}
                   {open && (
                     <div className="subtareas-list">
                       {(tarea.subtareas || []).map(sub => {
@@ -144,20 +168,53 @@ const Tareas = () => {
                             <span className={`subtarea-estado ${sr ? 'realizado' : 'no-realizado'}`}>
                               {sr && <FiCheck className="estado-icon" />} {sr ? 'Realizado' : 'No Realizado'}
                             </span>
-
-                            {/* Botón "Dejar evidencia" — no operativo, próximamente */}
-                            {sr && (
-                              <button
-                                className="btn-evidencia"
-                                disabled
-                                title="Función disponible próximamente"
-                              >
-                                <FiPaperclip className="evidencia-icon" /> Dejar evidencia
-                              </button>
-                            )}
                           </div>
                         );
                       })}
+
+                      {/* Evidencia — solo cuando la TAREA completa está Realizada */}
+                      {real && (
+                        <div className="evidencia-section">
+                          {tarea.evidenciaUrl ? (
+                            <div className="evidencia-lista">
+                              <FiImage className="evidencia-icon-check" />
+                              <span>Evidencia adjuntada</span>
+                              <a
+                                href={getImageUrl(tarea.evidenciaUrl)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="evidencia-ver"
+                              >
+                                Ver imagen
+                              </a>
+                              <button
+                                className="btn-evidencia-cambiar"
+                                onClick={() => handleSeleccionarArchivo(tarea.id)}
+                                disabled={subiendoId === tarea.id}
+                              >
+                                {subiendoId === tarea.id ? 'Subiendo...' : 'Cambiar foto'}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              className="btn-evidencia"
+                              onClick={() => handleSeleccionarArchivo(tarea.id)}
+                              disabled={subiendoId === tarea.id}
+                            >
+                              <FiPaperclip className="evidencia-icon" />
+                              {subiendoId === tarea.id ? 'Subiendo...' : 'Dejar evidencia (opcional)'}
+                            </button>
+                          )}
+
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={el => fileInputRefs.current[tarea.id] = el}
+                            onChange={(e) => handleArchivoElegido(tarea.id, e)}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

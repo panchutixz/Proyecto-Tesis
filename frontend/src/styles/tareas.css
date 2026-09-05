@@ -311,3 +311,74 @@
   margin-right: 4px;
   font-size: 12px;
 }
+
+/* ── Sección de evidencia (solo cuando la tarea está Realizada) ── */
+.evidencia-section {
+  padding: 12px 18px;
+  background: #f0f8f0;
+  border-top: 1px solid #d0ebd0;
+}
+
+.btn-evidencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a6e3e;
+  background: #e3f5e8;
+  border: 1px solid #b8e0c4;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-evidencia:hover:not(:disabled) {
+  background: #d4f0dd;
+}
+
+.btn-evidencia:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.evidencia-icon {
+  font-size: 13px;
+}
+
+.evidencia-lista {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #1a6e3e;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.evidencia-icon-check {
+  font-size: 15px;
+}
+
+.evidencia-ver {
+  color: #4a90d9;
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.btn-evidencia-cambiar {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #c5d3e8;
+  color: #6b7cb0;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-evidencia-cambiar:hover:not(:disabled) {
+  background: #eef2fa;
+}

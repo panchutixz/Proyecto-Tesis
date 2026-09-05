@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea } from '@services/tareas.service.js';
+import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidencia } from '@services/tareas.service.js';
 import { useAuth } from '@context/AuthContext.jsx';
 
 const TareasContext = createContext();
@@ -79,6 +79,22 @@ export const TareasProvider = ({ children }) => {
     }
   };
 
+  const subirEvidencia = async (tareaId, file) => {
+    try {
+      const res = await uploadEvidencia(tareaId, file);
+      const nuevaUrl = res?.data?.evidencia_url;
+
+      setTareas(prev => prev.map(t =>
+        t.id === tareaId ? { ...t, evidenciaUrl: nuevaUrl } : t
+      ));
+
+      return { ok: true };
+    } catch (err) {
+      console.error('Error al subir evidencia:', err);
+      return { ok: false, message: err.message || 'Error al subir la evidencia.' };
+    }
+  };
+
   const totalTareas        = tareas.length;
   const tareasRealizadas   = tareas.filter(t => t.estado === 'Realizado').length;
   const tareasNoRealizadas = tareas.filter(t => t.estado === 'No Realizado').length;
@@ -99,10 +115,10 @@ export const TareasProvider = ({ children }) => {
       status:      t.estado === 'Realizado' ? 'realizada' : 'pendiente',
     }));
 
-  return (
+    return (
     <TareasContext.Provider value={{
       tareas, loading, fetchTareas,
-      agregarTareaLocal, toggleSubtarea,
+      agregarTareaLocal, toggleSubtarea, subirEvidencia,
       totalTareas, tareasRealizadas, tareasNoRealizadas,
       actividadReciente,
     }}>

@@ -49,6 +49,10 @@ export const TareaEntity = new EntitySchema({
       length: 255,
       nullable: true,
     },
+    evidencia_url: {                    // ← NUEVO
+      type: "varchar",
+      nullable: true,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,
