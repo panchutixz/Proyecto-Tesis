@@ -248,6 +248,11 @@ export async function getMovimientos(req, res) {
       where.jornada = jornada;
     }
 
+    // El bodeguero solo ve sus propios movimientos (reposiciones que él mismo hizo)
+    if (rol === "bodeguero") {
+      where.realizado_por_id = String(req.user?.id || req.user?.rut || "");
+    }
+
     const movimientos = await movRepo.find({
       where,
       order: { fecha: "DESC" },
