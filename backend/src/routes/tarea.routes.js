@@ -10,6 +10,7 @@ import {
   updateTareaEstado,
   updateSubtareaEstado,
   uploadEvidencia,
+  uploadEvidenciaSubtarea,
 } from "../controllers/tarea.controller.js";
 
 const router = Router();
@@ -21,5 +22,6 @@ router.delete( "/:id",                                    authMiddleware, delete
 router.patch(  "/:id/estado",                             authMiddleware, updateTareaEstado);
 router.patch(  "/:tareaId/subtareas/:subtareaId/estado",  authMiddleware, updateSubtareaEstado);
 router.post(   "/:id/evidencia",                          authMiddleware, upload.single("evidencia"), uploadEvidencia);
+router.post(   "/:tareaId/subtareas/:subtareaId/evidencia", authMiddleware, upload.array("evidencias", 4), uploadEvidenciaSubtarea);
 
 export default router;

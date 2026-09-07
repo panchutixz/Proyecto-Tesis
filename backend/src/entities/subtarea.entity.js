@@ -20,6 +20,10 @@ export const SubtareaEntity = new EntitySchema({
       length: 50,
       default: "No Realizado",
     },
+    evidencias: {                     // ← NUEVO — array de URLs de fotos
+      type: "simple-json",
+      nullable: true,
+    },
     tarea_id: {
       type: "int",
       nullable: false,

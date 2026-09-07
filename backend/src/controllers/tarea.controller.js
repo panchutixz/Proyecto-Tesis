@@ -5,10 +5,15 @@ import { AppDataSource } from "../config/configDb.js";
 import { TareaEntity }    from "../entities/tarea.entity.js";
 import { SubtareaEntity } from "../entities/subtarea.entity.js";
 
+const MAX_FOTOS_EVIDENCIA = 4;
+
+
 const HORA = () =>
   new Date().toLocaleTimeString("es-CL", {
     hour: "2-digit", minute: "2-digit", hour12: false,
   });
+
+ 
 
 // ── GET /api/tareas ────────────────────────────────────────────────────────
 export async function getTareas(req, res) {
@@ -278,6 +283,52 @@ export async function uploadEvidencia(req, res) {
     });
   } catch (error) {
     console.error("Error en uploadEvidencia:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}
+
+// ── POST /api/tareas/:tareaId/subtareas/:subtareaId/evidencia ──────────────
+export async function uploadEvidenciaSubtarea(req, res) {
+  try {
+    const { tareaId, subtareaId } = req.params;
+    const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
+
+    const subtarea = await subtareaRepo.findOne({ where: { id: Number(subtareaId) } });
+    if (!subtarea) return res.status(404).json({ message: "Subtarea no encontrada." });
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No se recibió ninguna imagen." });
+    }
+
+    const evidenciasActuales = Array.isArray(subtarea.evidencias) ? subtarea.evidencias : [];
+
+    if (evidenciasActuales.length + req.files.length > MAX_FOTOS_EVIDENCIA) {
+      return res.status(400).json({
+        message: `Máximo ${MAX_FOTOS_EVIDENCIA} fotos por subtarea. Ya tienes ${evidenciasActuales.length}.`,
+      });
+    }
+
+    const uploadDir = path.join("src", "public", "uploads");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    const nuevasUrls = [];
+    for (const file of req.files) {
+      const ext      = path.extname(file.originalname) || ".jpg";
+      const filename = `subtarea_${subtareaId}_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
+      const destPath = path.join(uploadDir, filename);
+      fs.writeFileSync(destPath, file.buffer);
+      nuevasUrls.push(`/uploads/${filename}`);
+    }
+
+    subtarea.evidencias = [...evidenciasActuales, ...nuevasUrls];
+    await subtareaRepo.save(subtarea);
+
+    return res.status(200).json({
+      message: "Evidencia subida correctamente.",
+      data: { evidencias: subtarea.evidencias },
+    });
+  } catch (error) {
+    console.error("Error en uploadEvidenciaSubtarea:", error);
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }

@@ -17,13 +17,14 @@ import {
   FiImage,
 } from 'react-icons/fi';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || '';
+const BASE_URL   = import.meta.env.VITE_BASE_URL || '';
+const MAX_FOTOS  = 4;
 
 const Tareas = () => {
   const { user }                                    = useAuth();
   const { tareas, loading, fetchTareas,
           agregarTareaLocal, toggleSubtarea,
-          subirEvidencia }                          = useTareas();
+          subirEvidenciaSubtarea }                  = useTareas();
   const { handleCreateTarea }                       = useCreateTarea(fetchTareas, agregarTareaLocal);
   const { handleEditTarea }                         = useEditTarea(fetchTareas);
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
@@ -35,7 +36,7 @@ const Tareas = () => {
   const jornadaEmpleado = user?.jornada || 'Mañana';
   const [jornada, setJornada]   = useState(isEmpleado ? jornadaEmpleado : 'Mañana');
   const [expanded, setExpanded] = useState({});
-  const [subiendoId, setSubiendoId] = useState(null);
+  const [subiendoKey, setSubiendoKey] = useState(null); // `${tareaId}-${subtareaId}`
   const fileInputRefs = useRef({});
 
   const toggle    = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }));
@@ -43,17 +44,18 @@ const Tareas = () => {
 
   const getImageUrl = (path) => `${BASE_URL.replace('/api', '')}${path}`;
 
-  const handleSeleccionarArchivo = (tareaId) => {
-    fileInputRefs.current[tareaId]?.click();
+  const handleSeleccionarArchivo = (tareaId, subtareaId) => {
+    fileInputRefs.current[`${tareaId}-${subtareaId}`]?.click();
   };
 
-  const handleArchivoElegido = async (tareaId, e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    setSubiendoId(tareaId);
-    const resultado = await subirEvidencia(tareaId, file);
-    setSubiendoId(null);
+    const key = `${tareaId}-${subtareaId}`;
+    setSubiendoKey(key);
+    const resultado = await subirEvidenciaSubtarea(tareaId, subtareaId, files);
+    setSubiendoKey(null);
     e.target.value = '';
 
     if (!resultado.ok) {
@@ -150,71 +152,65 @@ const Tareas = () => {
                     <div className="subtareas-list">
                       {(tarea.subtareas || []).map(sub => {
                         const sr = sub.estado === 'Realizado';
-                        return (
-                          <div key={sub.id} className="subtarea-item">
-                            <div className={`subtarea-bar ${sr ? 'realizado' : 'no-realizado'}`} />
+                        const key = `${tarea.id}-${sub.id}`;
+                        const fotos = sub.evidencias || [];
+                        const subiendo = subiendoKey === key;
 
-                            <div
-                              className={`subtarea-check ${sr ? 'checked' : ''}`}
-                              onClick={() => toggleSubtarea(tarea.id, sub.id)}
-                              title="Marcar como realizado"
-                            >
-                              {sr && <FiCheck />}
+                        return (
+                          <div key={sub.id} className="subtarea-item-wrap">
+                            <div className="subtarea-item">
+                              <div className={`subtarea-bar ${sr ? 'realizado' : 'no-realizado'}`} />
+
+                              <div
+                                className={`subtarea-check ${sr ? 'checked' : ''}`}
+                                onClick={() => toggleSubtarea(tarea.id, sub.id)}
+                                title="Marcar como realizado"
+                              >
+                                {sr && <FiCheck />}
+                              </div>
+
+                              <span className={`subtarea-texto ${sr ? 'realizado' : ''}`}>
+                                {sub.texto}
+                              </span>
+                              <span className={`subtarea-estado ${sr ? 'realizado' : 'no-realizado'}`}>
+                                {sr && <FiCheck className="estado-icon" />} {sr ? 'Realizado' : 'No Realizado'}
+                              </span>
+
+                              {sr && (
+                                <button
+                                  className="btn-evidencia-mini"
+                                  onClick={() => handleSeleccionarArchivo(tarea.id, sub.id)}
+                                  disabled={subiendo || fotos.length >= MAX_FOTOS}
+                                  title={fotos.length >= MAX_FOTOS ? `Máximo ${MAX_FOTOS} fotos` : 'Adjuntar evidencia'}
+                                >
+                                  <FiPaperclip />
+                                  {subiendo ? 'Subiendo...' : fotos.length > 0 ? `${fotos.length} foto${fotos.length > 1 ? 's' : ''}` : 'Evidencia'}
+                                </button>
+                              )}
+
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                ref={el => fileInputRefs.current[key] = el}
+                                onChange={(e) => handleArchivosElegidos(tarea.id, sub.id, e)}
+                                style={{ display: 'none' }}
+                              />
                             </div>
 
-                            <span className={`subtarea-texto ${sr ? 'realizado' : ''}`}>
-                              {sub.texto}
-                            </span>
-                            <span className={`subtarea-estado ${sr ? 'realizado' : 'no-realizado'}`}>
-                              {sr && <FiCheck className="estado-icon" />} {sr ? 'Realizado' : 'No Realizado'}
-                            </span>
+                            {/* Miniaturas de fotos ya subidas */}
+                            {sr && fotos.length > 0 && (
+                              <div className="evidencia-thumbs">
+                                {fotos.map((url, i) => (
+                                  <a key={i} href={getImageUrl(url)} target="_blank" rel="noreferrer" className="evidencia-thumb">
+                                    <img src={getImageUrl(url)} alt={`Evidencia ${i + 1}`} />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
-
-                      {/* Evidencia — solo cuando la TAREA completa está Realizada */}
-                      {real && (
-                        <div className="evidencia-section">
-                          {tarea.evidenciaUrl ? (
-                            <div className="evidencia-lista">
-                              <FiImage className="evidencia-icon-check" />
-                              <span>Evidencia adjuntada</span>
-                              <a
-                                href={getImageUrl(tarea.evidenciaUrl)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="evidencia-ver"
-                              >
-                                Ver imagen
-                              </a>
-                              <button
-                                className="btn-evidencia-cambiar"
-                                onClick={() => handleSeleccionarArchivo(tarea.id)}
-                                disabled={subiendoId === tarea.id}
-                              >
-                                {subiendoId === tarea.id ? 'Subiendo...' : 'Cambiar foto'}
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              className="btn-evidencia"
-                              onClick={() => handleSeleccionarArchivo(tarea.id)}
-                              disabled={subiendoId === tarea.id}
-                            >
-                              <FiPaperclip className="evidencia-icon" />
-                              {subiendoId === tarea.id ? 'Subiendo...' : 'Dejar evidencia (opcional)'}
-                            </button>
-                          )}
-
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={el => fileInputRefs.current[tarea.id] = el}
-                            onChange={(e) => handleArchivoElegido(tarea.id, e)}
-                            style={{ display: 'none' }}
-                          />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

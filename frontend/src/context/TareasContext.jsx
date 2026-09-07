@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidencia } from '@services/tareas.service.js';
+import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidenciaSubtarea } from '@services/tareas.service.js';
 import { useAuth } from '@context/AuthContext.jsx';
 
 const TareasContext = createContext();
@@ -17,7 +17,10 @@ export const TareasProvider = ({ children }) => {
       const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
       setTareas(data.map(t => ({
         ...t,
-        subtareas:    Array.isArray(t.subtareas) ? t.subtareas : [],
+        subtareas: (Array.isArray(t.subtareas) ? t.subtareas : []).map(s => ({
+          ...s,
+          evidencias: Array.isArray(s.evidencias) ? s.evidencias : [],
+        })),
         horaRegistro: t.hora_registro || null,
         trabajador:   t.trabajador_nombre || 'Sin asignar',
         evidenciaUrl: t.evidencia_url || null,
@@ -79,6 +82,28 @@ export const TareasProvider = ({ children }) => {
     }
   };
 
+    const subirEvidenciaSubtarea = async (tareaId, subtareaId, files) => {
+    try {
+      const res = await uploadEvidenciaSubtarea(tareaId, subtareaId, files);
+      const nuevasEvidencias = res?.data?.evidencias || [];
+
+      setTareas(prev => prev.map(t => {
+        if (t.id !== tareaId) return t;
+        return {
+          ...t,
+          subtareas: t.subtareas.map(s =>
+            s.id === subtareaId ? { ...s, evidencias: nuevasEvidencias } : s
+          ),
+        };
+      }));
+
+      return { ok: true };
+    } catch (err) {
+      console.error('Error al subir evidencia de subtarea:', err);
+      return { ok: false, message: err?.response?.data?.message || err.message || 'Error al subir la evidencia.' };
+    }
+  };
+
   const subirEvidencia = async (tareaId, file) => {
     try {
       const res = await uploadEvidencia(tareaId, file);
@@ -115,10 +140,10 @@ export const TareasProvider = ({ children }) => {
       status:      t.estado === 'Realizado' ? 'realizada' : 'pendiente',
     }));
 
-    return (
+     return (
     <TareasContext.Provider value={{
       tareas, loading, fetchTareas,
-      agregarTareaLocal, toggleSubtarea, subirEvidencia,
+      agregarTareaLocal, toggleSubtarea, subirEvidenciaSubtarea,
       totalTareas, tareasRealizadas, tareasNoRealizadas,
       actividadReciente,
     }}>

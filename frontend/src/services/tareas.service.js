@@ -64,6 +64,18 @@ export const SUBTAREAS_POR_DEPARTAMENTO = {
   },
 };
 
+export async function uploadEvidenciaSubtarea(tareaId, subtareaId, files) {
+  const form = new FormData();
+  Array.from(files).forEach(file => form.append('evidencias', file));
+
+  const res = await axios.post(
+    `/tareas/${tareaId}/subtareas/${subtareaId}/evidencia`,
+    form,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+  return res.data;
+}
+
 export const DEPARTAMENTOS = Object.keys(SUBTAREAS_POR_DEPARTAMENTO);
 export const getActividadesPorDepartamento = (d) => Object.keys(SUBTAREAS_POR_DEPARTAMENTO[d] || {});
 export const getSubtareasPorDepartamentoYActividad = (d, a) => SUBTAREAS_POR_DEPARTAMENTO[d]?.[a] || [];
