@@ -9,7 +9,6 @@ import {
   deleteTarea,
   updateTareaEstado,
   updateSubtareaEstado,
-  uploadEvidencia,
   uploadEvidenciaSubtarea,
 } from "../controllers/tarea.controller.js";
 
@@ -21,7 +20,6 @@ router.put(    "/:id",                                    authMiddleware, update
 router.delete( "/:id",                                    authMiddleware, deleteTarea);
 router.patch(  "/:id/estado",                             authMiddleware, updateTareaEstado);
 router.patch(  "/:tareaId/subtareas/:subtareaId/estado",  authMiddleware, updateSubtareaEstado);
-router.post(   "/:id/evidencia",                          authMiddleware, upload.single("evidencia"), uploadEvidencia);
 router.post(   "/:tareaId/subtareas/:subtareaId/evidencia", authMiddleware, upload.array("evidencias", 4), uploadEvidenciaSubtarea);
 
 export default router;

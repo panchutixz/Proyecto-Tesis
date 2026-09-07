@@ -258,35 +258,6 @@ export async function updateSubtareaEstado(req, res) {
   }
 }
 
-// ── POST /api/tareas/:id/evidencia ─────────────────────────────────────────
-export async function uploadEvidencia(req, res) {
-  try {
-    const { id } = req.params;
-    const tareaRepo = AppDataSource.getRepository(TareaEntity);
-
-    const tarea = await tareaRepo.findOne({ where: { id: Number(id) } });
-    if (!tarea) return res.status(404).json({ message: "Tarea no encontrada." });
-
-    if (!req.file) return res.status(400).json({ message: "No se recibió ninguna imagen." });
-
-    const ext      = path.extname(req.file.originalname) || ".jpg";
-    const filename = `tarea_${id}_${Date.now()}${ext}`;
-    const destPath = path.join("src", "public", "uploads", filename);
-    fs.writeFileSync(destPath, req.file.buffer);
-
-    tarea.evidencia_url = `/uploads/${filename}`;
-    await tareaRepo.save(tarea);
-
-    return res.status(200).json({
-      message: "Evidencia subida correctamente.",
-      data: { evidencia_url: tarea.evidencia_url },
-    });
-  } catch (error) {
-    console.error("Error en uploadEvidencia:", error);
-    return res.status(500).json({ message: "Error interno del servidor." });
-  }
-}
-
 // ── POST /api/tareas/:tareaId/subtareas/:subtareaId/evidencia ──────────────
 export async function uploadEvidenciaSubtarea(req, res) {
   try {
