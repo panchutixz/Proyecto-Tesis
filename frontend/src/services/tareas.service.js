@@ -75,6 +75,13 @@ export async function uploadEvidenciaSubtarea(tareaId, subtareaId, files) {
   );
   return res.data;
 }
+export async function deleteEvidenciaSubtarea(tareaId, subtareaId, url) {
+  const res = await axios.delete(
+    `/tareas/${tareaId}/subtareas/${subtareaId}/evidencia`,
+    { data: { url } }
+  );
+  return res.data;
+}
 
 export const DEPARTAMENTOS = Object.keys(SUBTAREAS_POR_DEPARTAMENTO);
 export const getActividadesPorDepartamento = (d) => Object.keys(SUBTAREAS_POR_DEPARTAMENTO[d] || {});

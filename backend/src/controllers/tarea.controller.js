@@ -303,3 +303,39 @@ export async function uploadEvidenciaSubtarea(req, res) {
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }
+// ── DELETE /api/tareas/:tareaId/subtareas/:subtareaId/evidencia ────────────
+export async function deleteEvidenciaSubtarea(req, res) {
+  try {
+    const { tareaId, subtareaId } = req.params;
+    const { url } = req.body;
+
+    if (!url) return res.status(400).json({ message: "Falta la URL de la evidencia a eliminar." });
+
+    const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
+    const subtarea = await subtareaRepo.findOne({ where: { id: Number(subtareaId) } });
+    if (!subtarea) return res.status(404).json({ message: "Subtarea no encontrada." });
+
+    const evidenciasActuales = Array.isArray(subtarea.evidencias) ? subtarea.evidencias : [];
+
+    if (!evidenciasActuales.includes(url)) {
+      return res.status(404).json({ message: "Esa evidencia no existe en esta subtarea." });
+    }
+
+    // Elimina el archivo físico del servidor
+    const rutaArchivo = path.join("src", "public", url);
+    if (fs.existsSync(rutaArchivo)) {
+      fs.unlinkSync(rutaArchivo);
+    }
+
+    subtarea.evidencias = evidenciasActuales.filter(e => e !== url);
+    await subtareaRepo.save(subtarea);
+
+    return res.status(200).json({
+      message: "Evidencia eliminada correctamente.",
+      data: { evidencias: subtarea.evidencias },
+    });
+  } catch (error) {
+    console.error("Error en deleteEvidenciaSubtarea:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}

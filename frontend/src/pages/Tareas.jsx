@@ -1,5 +1,6 @@
 import '@styles/tareas.css';
 import { useState, useRef }  from 'react';
+import Swal from 'sweetalert2';
 import { useAuth }           from '@context/AuthContext.jsx';
 import { useTareas }         from '@context/TareasContext.jsx';
 import useCreateTarea        from '@hooks/tareas/useCreateTarea.jsx';
@@ -15,6 +16,7 @@ import {
   FiTrash2,
   FiPaperclip,
   FiImage,
+  FiX,
 } from 'react-icons/fi';
 
 const BASE_URL   = import.meta.env.VITE_BASE_URL || '';
@@ -22,9 +24,9 @@ const MAX_FOTOS  = 4;
 
 const Tareas = () => {
   const { user }                                    = useAuth();
-  const { tareas, loading, fetchTareas,
+    const { tareas, loading, fetchTareas,
           agregarTareaLocal, toggleSubtarea,
-          subirEvidenciaSubtarea }                  = useTareas();
+          subirEvidenciaSubtarea, eliminarEvidenciaSubtarea } = useTareas();
   const { handleCreateTarea }                       = useCreateTarea(fetchTareas, agregarTareaLocal);
   const { handleEditTarea }                         = useEditTarea(fetchTareas);
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
@@ -61,6 +63,40 @@ const Tareas = () => {
     if (!resultado.ok) {
       alert(resultado.message);
     }
+  };
+  const handleEliminarFoto = async (tareaId, subtareaId, url) => {
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar esta foto?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#c0392b',
+      cancelButtonColor:  '#1a1f5e',
+    });
+
+    if (!confirmacion.isConfirmed) return;
+
+    const resultado = await eliminarEvidenciaSubtarea(tareaId, subtareaId, url);
+
+    if (!resultado.ok) {
+      Swal.fire({
+        title: 'Error',
+        text: resultado.message,
+        icon: 'error',
+        confirmButtonColor: '#1a1f5e',
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Foto eliminada',
+      icon: 'success',
+      timer: 1500,
+      timerProgressBar: true,
+      showConfirmButton: false,
+    });
   };
 
   return (
@@ -202,9 +238,19 @@ const Tareas = () => {
                             {sr && fotos.length > 0 && (
                               <div className="evidencia-thumbs">
                                 {fotos.map((url, i) => (
-                                  <a key={i} href={getImageUrl(url)} target="_blank" rel="noreferrer" className="evidencia-thumb">
-                                    <img src={getImageUrl(url)} alt={`Evidencia ${i + 1}`} />
-                                  </a>
+                                  <div key={i} className="evidencia-thumb-wrap">
+                                    <a href={getImageUrl(url)} target="_blank" rel="noreferrer" className="evidencia-thumb">
+                                      <img src={getImageUrl(url)} alt={`Evidencia ${i + 1}`} />
+                                    </a>
+                                    <button
+                                      type="button"
+                                      className="evidencia-thumb-delete"
+                                      onClick={() => handleEliminarFoto(tarea.id, sub.id, url)}
+                                      title="Eliminar esta foto"
+                                    >
+                                      <FiX />
+                                    </button>
+                                  </div>
                                 ))}
                               </div>
                             )}

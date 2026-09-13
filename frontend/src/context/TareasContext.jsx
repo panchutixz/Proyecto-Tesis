@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidenciaSubtarea } from '@services/tareas.service.js';
+import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidenciaSubtarea, deleteEvidenciaSubtarea } from '@services/tareas.service.js';
 import { useAuth } from '@context/AuthContext.jsx';
 
 const TareasContext = createContext();
@@ -103,6 +103,28 @@ export const TareasProvider = ({ children }) => {
       return { ok: false, message: err?.response?.data?.message || err.message || 'Error al subir la evidencia.' };
     }
   };
+    const eliminarEvidenciaSubtarea = async (tareaId, subtareaId, url) => {
+    try {
+      await deleteEvidenciaSubtarea(tareaId, subtareaId, url);
+
+      setTareas(prev => prev.map(t => {
+        if (t.id !== tareaId) return t;
+        return {
+          ...t,
+          subtareas: t.subtareas.map(s =>
+            s.id === subtareaId
+              ? { ...s, evidencias: (s.evidencias || []).filter(e => e !== url) }
+              : s
+          ),
+        };
+      }));
+
+      return { ok: true };
+    } catch (err) {
+      console.error('Error al eliminar evidencia:', err);
+      return { ok: false, message: err?.response?.data?.message || err.message || 'Error al eliminar la evidencia.' };
+    }
+  };
 
   const subirEvidencia = async (tareaId, file) => {
     try {
@@ -140,10 +162,10 @@ export const TareasProvider = ({ children }) => {
       status:      t.estado === 'Realizado' ? 'realizada' : 'pendiente',
     }));
 
-     return (
+       return (
     <TareasContext.Provider value={{
       tareas, loading, fetchTareas,
-      agregarTareaLocal, toggleSubtarea, subirEvidenciaSubtarea,
+      agregarTareaLocal, toggleSubtarea, subirEvidenciaSubtarea, eliminarEvidenciaSubtarea,
       totalTareas, tareasRealizadas, tareasNoRealizadas,
       actividadReciente,
     }}>
