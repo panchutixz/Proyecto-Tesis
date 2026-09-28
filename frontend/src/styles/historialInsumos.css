@@ -138,6 +138,10 @@
   background: #2e7d32;
 }
 
+.historial-badge.solicitud {
+  background: #6a1b9a;
+}
+
 @media (max-width: 768px) {
   .historial-page {
     width: calc(100% - 16px);

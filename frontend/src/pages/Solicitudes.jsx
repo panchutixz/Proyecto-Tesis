@@ -14,7 +14,8 @@ const Solicitudes = () => {
 
   const { solicitudes, loading, fetchSolicitudes } = useGetSolicitudes();
   const { insumos, fetchInsumos } = useGetInsumo();
-  const { handleCrearSolicitud } = useCrearSolicitud(fetchSolicitudes, insumos);
+  const puedeVerStock = rol === 'supervisor';
+  const { handleCrearSolicitud } = useCrearSolicitud(fetchSolicitudes, insumos, puedeVerStock);
   const { handleAprobar, handleRechazar } = useResolverSolicitud(fetchSolicitudes);
 
   useEffect(() => {
@@ -75,6 +76,7 @@ const Solicitudes = () => {
                           </p>
                           <p className="text-sm text-slate-500 mt-1">
                             Solicitado por <strong>{s.solicitante_nombre}</strong>
+                            {s.solicitante_jornada && <> — Jornada {s.solicitante_jornada}</>}
                             {' · '}
                             {new Date(s.created_at).toLocaleString('es-CL')}
                           </p>

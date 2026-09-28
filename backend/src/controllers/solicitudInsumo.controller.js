@@ -30,13 +30,16 @@ export async function crearSolicitud(req, res) {
       return res.status(404).json({ message: "El insumo no existe." });
     }
 
+    const nombreCompleto = `${req.user.nombre || "Usuario"} ${req.user.apellido || ""}`.trim();
+
     const nuevaSolicitud = solicitudRepo().create({
       insumo_id: insumo.id,
       insumo_nombre: insumo.nombre,
       cantidad,
       estado: "Pendiente",
       solicitante_id: String(req.user.id),
-      solicitante_nombre: req.user.nombre || "Usuario",
+      solicitante_nombre: nombreCompleto,
+      solicitante_jornada: req.user.jornada || null,
     });
 
     await solicitudRepo().save(nuevaSolicitud);
@@ -98,7 +101,7 @@ export async function resolverSolicitud(req, res) {
       solicitud.estado = "Rechazada";
       solicitud.comentario_rechazo = comentario.trim();
       solicitud.resuelto_por_id = String(req.user.id);
-      solicitud.resuelto_por_nombre = req.user.nombre || "Usuario";
+      solicitud.resuelto_por_nombre = `${req.user.nombre || "Usuario"} ${req.user.apellido || ""}`.trim();
       await solicitudRepo().save(solicitud);
       return res.status(200).json({ message: "Solicitud rechazada.", data: solicitud });
     }
@@ -122,10 +125,11 @@ export async function resolverSolicitud(req, res) {
         insumo_nombre: insumo.nombre,
         tipo: "Solicitud",
         cantidad: solicitud.cantidad,
+        jornada: solicitud.solicitante_jornada || null,
         trabajador_id: solicitud.solicitante_id,
         trabajador_nombre: solicitud.solicitante_nombre,
         realizado_por_id: String(req.user.id),
-        realizado_por_nombre: req.user.nombre || "Usuario",
+        realizado_por_nombre: `${req.user.nombre || "Usuario"} ${req.user.apellido || ""}`.trim(),
       }));
 
       solicitud.estado = "Aprobada";

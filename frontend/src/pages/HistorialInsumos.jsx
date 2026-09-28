@@ -112,7 +112,10 @@ const HistorialInsumos = () => {
                 <tr key={m.id}>
                   <td>{formatFecha(m.fecha)}</td>
                   <td>
-                    <span className={`historial-badge ${m.tipo === "Entrega" ? "entrega" : "reposicion"}`}>
+                    <span className={`historial-badge ${
+                      m.tipo === "Entrega" ? "entrega" :
+                      m.tipo === "Solicitud" ? "solicitud" : "reposicion"
+                    }`}>
                       {m.tipo}
                     </span>
                   </td>

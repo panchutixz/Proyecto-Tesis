@@ -14,12 +14,13 @@ export async function loginUser(email, password) {
 
 
   const payload = {
-  sub:     user.id,
-  id:      user.id,     
-  email:   user.email,
-  rol:     user.rol ?? user.role ?? null,
-  jornada: user.jornada ?? null,   
-  nombre:  user.nombre ?? null,    
+  sub:      user.id,
+  id:       user.id,     
+  email:    user.email,
+  rol:      user.rol ?? user.role ?? null,
+  jornada:  user.jornada ?? null,   
+  nombre:   user.nombre ?? null,
+  apellido: user.apellido ?? null,
 };
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 

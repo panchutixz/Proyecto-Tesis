@@ -33,7 +33,7 @@ export const SolicitudInsumoEntity = new EntitySchema({
       length: 500,
       nullable: true,
     },
-    solicitante_id: {
+        solicitante_id: {
       type: "varchar",
       nullable: false,
     },
@@ -41,6 +41,11 @@ export const SolicitudInsumoEntity = new EntitySchema({
       type: "varchar",
       length: 255,
       nullable: false,
+    },
+    solicitante_jornada: {
+      type: "varchar",
+      length: 30,
+      nullable: true,
     },
     resuelto_por_id: {
       type: "varchar",
