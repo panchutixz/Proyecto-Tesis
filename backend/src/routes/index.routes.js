@@ -3,7 +3,8 @@ import authRoutes from "./auth.routes.js";
 import userRoutes from "./user.routes.js";
 import profileRoutes from "./profile.routes.js";
 import tareaRoutes from "./tarea.routes.js";
-import insumoRoutes from "./insumo.routes.js";  
+import insumoRoutes from "./insumo.routes.js";
+import solicitudInsumoRoutes from "./solicitudInsumo.routes.js";
 
 
 
@@ -14,5 +15,6 @@ export function routerApi(app) {
   router.use("/users", userRoutes);
   router.use("/profile", profileRoutes);
   router.use("/tareas", tareaRoutes);
-  router.use("/insumos", insumoRoutes); 
+  router.use("/insumos", insumoRoutes);
+  router.use("/solicitudes-insumo", solicitudInsumoRoutes);
 }
