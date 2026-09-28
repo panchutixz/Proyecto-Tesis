@@ -135,15 +135,17 @@ const Sidebar = () => {
                 </li>
               )}
             
-            {/* Tareas — todos los roles */}
-            <li>
-              <button
-                onClick={() => goTo('/tareas')}
-                className={navItemClass("/tareas")}
-              >
-                Tareas
-              </button>
-            </li>
+            {/* Tareas — todos los roles excepto bodeguero */}
+            {userRole?.toLowerCase() !== "bodeguero" && (
+              <li>
+                <button
+                  onClick={() => goTo('/tareas')}
+                  className={navItemClass("/tareas")}
+                >
+                  Tareas
+                </button>
+              </li>
+            )}
 
             {/* Perfil */}
             <li>

@@ -25,15 +25,6 @@ export async function updateSubtareaEstado(tareaId, subtareaId, estado) {
   return res.data;
 }
 
-export async function uploadEvidencia(tareaId, file) {
-  const form = new FormData();
-  form.append('evidencia', file);
-  const res = await axios.post(`/tareas/${tareaId}/evidencia`, form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return res.data;
-}
-
 export const SUBTAREAS_POR_DEPARTAMENTO = {
   'FACE': {
     'Limpiar Baños':  ['Limpiar lavamanos','Rellenar papel higiénico','Reponer jabón de mano','Limpiar piso','Limpiar vidrios'],
@@ -63,6 +54,18 @@ export const SUBTAREAS_POR_DEPARTAMENTO = {
     'Aseo General': ['Barrer área','Trapear pisos','Vaciar basureros','Limpiar superficies'],
   },
 };
+
+export async function uploadEvidenciaSubtarea(tareaId, subtareaId, files) {
+  const form = new FormData();
+  Array.from(files).forEach(file => form.append('evidencias', file));
+
+  const res = await axios.post(
+    `/tareas/${tareaId}/subtareas/${subtareaId}/evidencia`,
+    form,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+  return res.data;
+}
 
 export async function deleteEvidenciaSubtarea(tareaId, subtareaId, url) {
   const res = await axios.delete(
