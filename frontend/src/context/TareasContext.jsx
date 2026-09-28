@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea, uploadEvidenciaSubtarea, deleteEvidenciaSubtarea } from '@services/tareas.service.js';
+import { getTareas, updateSubtareaEstado, uploadEvidenciaSubtarea, deleteEvidenciaSubtarea } from '@services/tareas.service.js';
 import { useAuth } from '@context/AuthContext.jsx';
 
 const TareasContext = createContext();
@@ -23,7 +23,6 @@ export const TareasProvider = ({ children }) => {
         })),
         horaRegistro: t.hora_registro || null,
         trabajador:   t.trabajador_nombre || 'Sin asignar',
-        evidenciaUrl: t.evidencia_url || null,
       })));
     } catch (err) {
       console.error('Error al obtener tareas:', err);
@@ -123,22 +122,6 @@ export const TareasProvider = ({ children }) => {
     } catch (err) {
       console.error('Error al eliminar evidencia:', err);
       return { ok: false, message: err?.response?.data?.message || err.message || 'Error al eliminar la evidencia.' };
-    }
-  };
-
-  const subirEvidencia = async (tareaId, file) => {
-    try {
-      const res = await uploadEvidencia(tareaId, file);
-      const nuevaUrl = res?.data?.evidencia_url;
-
-      setTareas(prev => prev.map(t =>
-        t.id === tareaId ? { ...t, evidenciaUrl: nuevaUrl } : t
-      ));
-
-      return { ok: true };
-    } catch (err) {
-      console.error('Error al subir evidencia:', err);
-      return { ok: false, message: err.message || 'Error al subir la evidencia.' };
     }
   };
 

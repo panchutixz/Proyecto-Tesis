@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTareas } from '@context/TareasContext.jsx';
 import { useAuth } from '@context/AuthContext.jsx';
 import useGetInsumo from '@hooks/insumo/useGetInsumo.jsx';
@@ -6,6 +7,7 @@ import { FiCheck, FiAlertCircle, FiPackage, FiAlertTriangle } from 'react-icons/
 
 const Home = () => {
   const { totalTareas, tareasRealizadas, tareasNoRealizadas, actividadReciente } = useTareas();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { insumos, fetchInsumos } = useGetInsumo();
 
@@ -38,7 +40,11 @@ const Home = () => {
               { label:'Realizadas',        value:tareasRealizadas,   bar:'bg-[#2f7a31]', num:'text-[#2f7a31]' },
               { label:'No realizadas',     value:tareasNoRealizadas, bar:'bg-[#b88d00]', num:'text-[#b88d00]' },
             ].map((s, i) => (
-              <article key={i} className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+              <article
+                key={i}
+                onClick={() => navigate('/tareas')}
+                className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.02]"
+              >
                 <div className={`mb-5 h-2 w-24 rounded-full ${s.bar}`} />
                 <p className="text-sm uppercase tracking-[0.25em] text-[#5b78a2] mb-4">{s.label}</p>
                 <p className={`text-[4rem] font-bold leading-none ${s.num}`}>{s.value}</p>
@@ -53,7 +59,10 @@ const Home = () => {
                 Estado del Almacén
               </h2>
               <div className="grid gap-6 md:grid-cols-3">
-                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                                <article
+                  onClick={() => navigate('/insumos')}
+                  className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.02]"
+                >
                   <div className="mb-5 h-2 w-24 rounded-full bg-[#172651]" />
                   <div className="flex items-center gap-2 mb-4">
                     <FiPackage className="text-[#5b78a2]" />
@@ -62,7 +71,10 @@ const Home = () => {
                   <p className="text-[4rem] font-bold leading-none text-[#172651]">{totalInsumos}</p>
                 </article>
 
-                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                <article
+                  onClick={() => navigate('/insumos')}
+                  className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.02]"
+                >
                   <div className="mb-5 h-2 w-24 rounded-full bg-[#b88d00]" />
                   <div className="flex items-center gap-2 mb-4">
                     <FiAlertCircle className="text-[#5b78a2]" />
@@ -71,7 +83,10 @@ const Home = () => {
                   <p className="text-[4rem] font-bold leading-none text-[#b88d00]">{insumosBajo}</p>
                 </article>
 
-                <article className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
+                <article
+                  onClick={() => navigate('/insumos')}
+                  className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.02]"
+                >
                   <div className="mb-5 h-2 w-24 rounded-full bg-[#c0392b]" />
                   <div className="flex items-center gap-2 mb-4">
                     <FiAlertTriangle className="text-[#5b78a2]" />

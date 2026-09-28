@@ -44,8 +44,9 @@ export async function getTareas(req, res) {
 export async function createTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
-      return res.status(403).json({ message: "Solo el administrador puede asignar tareas." });
+    // En createTarea:
+    if (!["administrador", "supervisor"].includes(rol)) {
+      return res.status(403).json({ message: "Solo el administrador o supervisor pueden asignar tareas." });
     }
 
     const { nombre, departamento, actividad, jornada, trabajadorId, trabajadorNombre, subtareas } = req.body;
@@ -92,7 +93,7 @@ export async function createTarea(req, res) {
 export async function updateTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
+    if (!["administrador", "supervisor"].includes(rol)) {
       return res.status(403).json({ message: "Sin permisos para editar tareas." });
     }
 
@@ -174,7 +175,7 @@ export async function updateTarea(req, res) {
 export async function deleteTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
+    if (!["administrador", "supervisor"].includes(rol)) {
       return res.status(403).json({ message: "Sin permisos para eliminar tareas." });
     }
 

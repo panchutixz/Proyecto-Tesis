@@ -99,13 +99,13 @@ const Sidebar = () => {
             </li>
 
             {/* Usuarios */}
-            {["administrador"].includes(userRole?.toLowerCase()) && (
-             <li>
-               <button
+            {["administrador", "supervisor"].includes(userRole?.toLowerCase()) && (
+            <li>
+              <button
                   onClick={() => goTo("/usuarios")}
                   className={navItemClass("/usuarios")}
-               >
-                 Usuarios
+              >
+                Usuarios
               </button>
             </li>
             )}

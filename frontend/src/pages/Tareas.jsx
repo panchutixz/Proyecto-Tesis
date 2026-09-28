@@ -32,7 +32,8 @@ const Tareas = () => {
   const { handleDeleteTarea }                       = useDeleteTarea(fetchTareas);
 
   const rol     = user?.rol?.toLowerCase();
-  const isAdmin = rol === 'administrador';
+  const puedeGestionarTareas = rol === 'administrador' || rol === 'supervisor';
+  const isAdmin = puedeGestionarTareas;   // se mantiene el nombre para no romper el resto del archivo
   const isEmpleado = !isAdmin;
 
   const jornadaEmpleado = user?.jornada || 'Mañana';
@@ -50,20 +51,41 @@ const Tareas = () => {
     fileInputRefs.current[`${tareaId}-${subtareaId}`]?.click();
   };
 
-  const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
 
-    const key = `${tareaId}-${subtareaId}`;
-    setSubiendoKey(key);
-    const resultado = await subirEvidenciaSubtarea(tareaId, subtareaId, files);
-    setSubiendoKey(null);
+  const key = `${tareaId}-${subtareaId}`;
+  const tareaActual = tareas.find(t => t.id === tareaId);
+  const subActual   = tareaActual?.subtareas?.find(s => s.id === subtareaId);
+  const fotosActuales      = subActual?.evidencias?.length || 0;
+  const espacioDisponible  = MAX_FOTOS - fotosActuales;
+
+  if (files.length > espacioDisponible) {
+    Swal.fire({
+      title: 'Demasiadas fotos',
+      text: `Solo puedes adjuntar hasta ${MAX_FOTOS} fotos por subtarea. Puedes agregar ${espacioDisponible} foto${espacioDisponible !== 1 ? 's' : ''} más.`,
+      icon: 'warning',
+      confirmButtonColor: '#1a1f5e',
+    });
     e.target.value = '';
+    return;
+  }
 
-    if (!resultado.ok) {
-      alert(resultado.message);
-    }
-  };
+  setSubiendoKey(key);
+  const resultado = await subirEvidenciaSubtarea(tareaId, subtareaId, files);
+  setSubiendoKey(null);
+  e.target.value = '';
+
+  if (!resultado.ok) {
+    Swal.fire({
+      title: 'Error al subir evidencia',
+      text: resultado.message,
+      icon: 'error',
+      confirmButtonColor: '#1a1f5e',
+    });
+  }
+};
   const handleEliminarFoto = async (tareaId, subtareaId, url) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar esta foto?',

@@ -14,7 +14,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Tareas from '@pages/Tareas';
 import Insumos from '@pages/Insumos';    
 import {TareasProvider} from '@context/TareasContext';
-import HistorialInsumos from '@pages/HistorialInsumos';   // ← NUEVO
+import HistorialInsumos from '@pages/HistorialInsumos'; 
 
 
 import { UserProvider } from '@context/UserContext';
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
           {
             path: "usuarios",
             element: (
-              <ProtectedRoute allowedRoles={["administrador", "supervisor", "encargado"]}>
+              <ProtectedRoute allowedRoles={["administrador", "supervisor"]}>
                 <Usuarios />
               </ProtectedRoute>
             ),
