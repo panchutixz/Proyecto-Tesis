@@ -100,15 +100,15 @@ const Sidebar = () => {
 
             {/* Usuarios */}
             {["administrador", "supervisor"].includes(userRole?.toLowerCase()) && (
-            <li>
-              <button
-                  onClick={() => goTo("/usuarios")}
-                  className={navItemClass("/usuarios")}
-              >
-                Usuarios
-              </button>
-            </li>
-            )}
+               <li>
+                  <button
+                    onClick={() => goTo("/usuarios")}
+                    className={navItemClass("/usuarios")}
+                  >
+                   Usuarios
+                  </button>
+                </li>
+              )}
 
             {/* Insumos — visible solo para administrador y bodeguero */}
               {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
@@ -134,6 +134,16 @@ const Sidebar = () => {
                   </button>
                 </li>
               )}
+
+            {/* Solicitudes de Insumos — visible para todos los roles */}
+            <li>
+              <button
+                onClick={() => goTo("/solicitudes-insumo")}
+                className={navItemClass("/solicitudes-insumo")}
+              >
+                Solicitudes de Insumos
+              </button>
+            </li>
             
             {/* Tareas — todos los roles excepto bodeguero */}
             {userRole?.toLowerCase() !== "bodeguero" && (
