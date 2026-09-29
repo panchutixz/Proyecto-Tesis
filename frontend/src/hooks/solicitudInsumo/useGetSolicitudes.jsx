@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { getSolicitudes } from '@services/solicitudInsumo.service.js';
 
+
 const useGetSolicitudes = () => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(false);

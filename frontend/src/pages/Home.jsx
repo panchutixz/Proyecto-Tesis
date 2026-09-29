@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useTareas } from '@context/TareasContext.jsx';
 import { useAuth } from '@context/AuthContext.jsx';
 import useGetInsumo from '@hooks/insumo/useGetInsumo.jsx';
-import { FiCheck, FiAlertCircle, FiPackage, FiAlertTriangle } from 'react-icons/fi';
+import useGetSolicitudes from '@hooks/solicitudInsumo/useGetSolicitudes.jsx';
+import { FiCheck, FiAlertCircle, FiPackage, FiAlertTriangle, FiBell } from 'react-icons/fi';
 
 const Home = () => {
   const { totalTareas, tareasRealizadas, tareasNoRealizadas, actividadReciente } = useTareas();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { insumos, fetchInsumos } = useGetInsumo();
+  const { solicitudes, fetchSolicitudes } = useGetSolicitudes();
+  const navigate = useNavigate();
 
   const rol = user?.rol;
   const puedeVerInsumos = rol === 'Administrador' || rol === 'Bodeguero';
@@ -17,8 +19,10 @@ const Home = () => {
 
   useEffect(() => {
     if (puedeVerInsumos) fetchInsumos();
+    fetchSolicitudes();
   }, [puedeVerInsumos]);
 
+  const solicitudesPendientes = solicitudes.filter(s => s.estado === 'Pendiente').length;
   const insumosBajo    = insumos.filter(i => i.estado === 'Bajo').length;
   const insumosAgotados = insumos.filter(i => i.estado === 'Agotado').length;
   const totalInsumos   = insumos.length;
@@ -97,11 +101,42 @@ const Home = () => {
                   </div>
                   <p className="text-[4rem] font-bold leading-none text-[#c0392b]">{insumosAgotados}</p>
                 </article>
-              </div>
+                    </div>
             </section>
           )}
 
-                    {/* Actividad reciente con scroll (oculto para bodeguero) */}
+          {/* Solicitudes de Insumos — visible para todos los roles */}
+          <section
+            onClick={() => navigate('/solicitudes-insumo')}
+            className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.01] flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0 ${
+                solicitudesPendientes > 0 ? 'bg-[#fff4d6]' : 'bg-[#eef3fb]'
+              }`}>
+                <FiBell className={solicitudesPendientes > 0 ? 'text-[#b88d00]' : 'text-[#5b78a2]'} size={22} />
+              </div>
+              <div>
+                <p className="text-sm uppercase tracking-[0.25em] text-[#5b78a2] mb-1">Solicitudes de Insumos</p>
+                <p className={`text-lg font-bold ${solicitudesPendientes > 0 ? 'text-[#b88d00]' : 'text-[#172651]'}`}>
+                  {solicitudesPendientes === 0
+                    ? 'No hay solicitudes nuevas'
+                    : solicitudesPendientes === 1
+                      ? '1 solicitud pendiente'
+                      : `${solicitudesPendientes} solicitudes pendientes`}
+                </p>
+              </div>
+            </div>
+
+            {solicitudesPendientes > 0 && (
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e8b800] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#e8b800]"></span>
+              </span>
+            )}
+          </section>
+
+          {/* Actividad reciente con scroll (oculto para bodeguero) */}
           {!esBodeguero && (
             <section className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
               <h2 className="text-xl font-bold uppercase tracking-[0.25em] text-[#172651] mb-6">
