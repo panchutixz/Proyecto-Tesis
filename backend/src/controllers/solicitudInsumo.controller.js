@@ -3,6 +3,7 @@ import { AppDataSource } from "../config/configDb.js";
 import { SolicitudInsumoEntity } from "../entities/solicitudInsumo.entity.js";
 import { InsumoEntity } from "../entities/insumo.entity.js";
 import { MovimientoInsumoEntity } from "../entities/movimientoInsumo.entity.js";
+import { notificarNuevaSolicitud, notificarResolucionSolicitud } from "../services/solicitudEmail.service.js";
 
 const solicitudRepo   = () => AppDataSource.getRepository(SolicitudInsumoEntity);
 const insumoRepo      = () => AppDataSource.getRepository(InsumoEntity);
@@ -43,6 +44,8 @@ export async function crearSolicitud(req, res) {
     });
 
     await solicitudRepo().save(nuevaSolicitud);
+
+    notificarNuevaSolicitud(nuevaSolicitud);
 
     return res.status(201).json({ message: "Solicitud enviada correctamente.", data: nuevaSolicitud });
   } catch (error) {
@@ -103,6 +106,9 @@ export async function resolverSolicitud(req, res) {
       solicitud.resuelto_por_id = String(req.user.id);
       solicitud.resuelto_por_nombre = `${req.user.nombre || "Usuario"} ${req.user.apellido || ""}`.trim();
       await solicitudRepo().save(solicitud);
+
+      notificarResolucionSolicitud(solicitud);
+
       return res.status(200).json({ message: "Solicitud rechazada.", data: solicitud });
     }
 
@@ -134,8 +140,10 @@ export async function resolverSolicitud(req, res) {
 
       solicitud.estado = "Aprobada";
       solicitud.resuelto_por_id = String(req.user.id);
-      solicitud.resuelto_por_nombre = req.user.nombre || "Usuario";
+      solicitud.resuelto_por_nombre = `${req.user.nombre || "Usuario"} ${req.user.apellido || ""}`.trim();
       await solicitudRepo().save(solicitud);
+
+      notificarResolucionSolicitud(solicitud);
 
       return res.status(200).json({ message: "Solicitud aprobada y stock descontado.", data: solicitud });
     }
