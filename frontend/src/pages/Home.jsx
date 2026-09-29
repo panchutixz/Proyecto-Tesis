@@ -105,7 +105,8 @@ const Home = () => {
             </section>
           )}
 
-          {/* Solicitudes de Insumos — visible para todos los roles */}
+          {/* Solicitudes de Insumos — solo quienes pueden aprobar/rechazar */}
+          {puedeVerInsumos && (
           <section
             onClick={() => navigate('/solicitudes-insumo')}
             className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)] cursor-pointer transition-transform hover:scale-[1.01] flex items-center justify-between"
@@ -133,8 +134,9 @@ const Home = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e8b800] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#e8b800]"></span>
               </span>
-            )}
+           )}
           </section>
+          )}
 
           {/* Actividad reciente con scroll (oculto para bodeguero) */}
           {!esBodeguero && (

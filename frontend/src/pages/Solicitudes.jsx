@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@context/AuthContext.jsx';
 import useGetSolicitudes from '@hooks/solicitudInsumo/useGetSolicitudes.jsx';
 import useCrearSolicitud from '@hooks/solicitudInsumo/useCrearSolicitud.jsx';
@@ -18,11 +18,16 @@ const Solicitudes = () => {
   const { handleCrearSolicitud } = useCrearSolicitud(fetchSolicitudes, insumos, puedeVerStock);
   const { handleAprobar, handleRechazar } = useResolverSolicitud(fetchSolicitudes);
 
+  const [jornada, setJornada] = useState('Mañana');
+
   useEffect(() => {
     fetchSolicitudes();
     if (puedeSolicitar) fetchInsumos();
   }, []);
 
+  const solicitudesFiltradas = puedeResolver
+    ? solicitudes.filter(s => s.solicitante_jornada === jornada)
+    : solicitudes;
   const badgeClase = (estado) => {
     if (estado === 'Aprobada') return 'bg-[#2f7a31]';
     if (estado === 'Rechazada') return 'bg-[#c0392b]';
@@ -34,36 +39,58 @@ const Solicitudes = () => {
       <main className="min-h-screen px-8 py-8 flex justify-center">
         <div className="w-full max-w-5xl space-y-8">
 
-          <section className="flex items-center justify-between">
+            <section className="flex items-center justify-between">
             <div>
               <h1 className="text-[1.9rem] font-bold uppercase tracking-[0.25em] text-[#172651]">
                 Solicitudes de Insumos
               </h1>
               <p className="text-sm text-[#5b78a2] mt-1">
-                {puedeResolver ? 'Todas las solicitudes' : 'Tus solicitudes'}
+                {puedeResolver ? `Jornada ${jornada}` : 'Tus solicitudes'}
               </p>
             </div>
 
-            {puedeSolicitar && (
-              <button
-                onClick={handleCrearSolicitud}
-                className="flex items-center gap-2 bg-[#1a1f5e] hover:bg-[#12154a] text-white font-semibold px-6 py-3 rounded-full text-sm transition-colors"
-              >
-                <FiPlus /> Nueva Solicitud
-              </button>
-            )}
+            <div className="flex items-center gap-4">
+              {puedeResolver && (
+                <div className="flex bg-[#eef3fb] rounded-full p-1">
+                  {['Mañana', 'Tarde'].map(j => (
+                    <button
+                      key={j}
+                      onClick={() => setJornada(j)}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+                        jornada === j
+                          ? 'bg-[#1a1f5e] text-white'
+                          : 'text-[#5b78a2] hover:text-[#172651]'
+                      }`}
+                    >
+                      {j}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {puedeSolicitar && (
+                <button
+                  onClick={handleCrearSolicitud}
+                  className="flex items-center gap-2 bg-[#1a1f5e] hover:bg-[#12154a] text-white font-semibold px-6 py-3 rounded-full text-sm transition-colors"
+                >
+                  <FiPlus /> Nueva Solicitud
+                </button>
+              )}
+            </div>
           </section>
 
           <section className="rounded-[30px] bg-white p-8 shadow-[0_10px_60px_-40px_rgba(0,0,0,0.4)]">
             {loading ? (
               <p className="text-slate-500">Cargando solicitudes...</p>
-            ) : solicitudes.length === 0 ? (
+            ) : solicitudesFiltradas.length === 0 ? (
               <div className="rounded-[20px] border border-dashed border-slate-300 bg-[#f2f6ff] p-10 text-center text-slate-500">
-                No hay solicitudes {puedeResolver ? 'registradas' : 'realizadas'} todavía.
+                {puedeResolver
+                  ? `No hay solicitudes para la jornada ${jornada}.`
+                  : 'No hay solicitudes realizadas todavía.'}
               </div>
             ) : (
               <div className="space-y-4">
-                {solicitudes.map((s) => (
+                {solicitudesFiltradas.map((s) => (
                   <div key={s.id} className="rounded-[20px] border border-slate-100 p-5 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
