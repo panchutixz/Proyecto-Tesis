@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getTareas, updateSubtareaEstado, deleteTarea, updateTarea } from '@services/tareas.service.js';
+import { getTareas, updateSubtareaEstado, uploadEvidenciaSubtarea, deleteEvidenciaSubtarea } from '@services/tareas.service.js';
 import { useAuth } from '@context/AuthContext.jsx';
 
 const TareasContext = createContext();
@@ -17,10 +17,12 @@ export const TareasProvider = ({ children }) => {
       const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
       setTareas(data.map(t => ({
         ...t,
-        subtareas:    Array.isArray(t.subtareas) ? t.subtareas : [],
+        subtareas: (Array.isArray(t.subtareas) ? t.subtareas : []).map(s => ({
+          ...s,
+          evidencias: Array.isArray(s.evidencias) ? s.evidencias : [],
+        })),
         horaRegistro: t.hora_registro || null,
         trabajador:   t.trabajador_nombre || 'Sin asignar',
-        evidenciaUrl: t.evidencia_url || null,
       })));
     } catch (err) {
       console.error('Error al obtener tareas:', err);
@@ -79,6 +81,50 @@ export const TareasProvider = ({ children }) => {
     }
   };
 
+    const subirEvidenciaSubtarea = async (tareaId, subtareaId, files) => {
+    try {
+      const res = await uploadEvidenciaSubtarea(tareaId, subtareaId, files);
+      const nuevasEvidencias = res?.data?.evidencias || [];
+
+      setTareas(prev => prev.map(t => {
+        if (t.id !== tareaId) return t;
+        return {
+          ...t,
+          subtareas: t.subtareas.map(s =>
+            s.id === subtareaId ? { ...s, evidencias: nuevasEvidencias } : s
+          ),
+        };
+      }));
+
+      return { ok: true };
+    } catch (err) {
+      console.error('Error al subir evidencia de subtarea:', err);
+      return { ok: false, message: err?.response?.data?.message || err.message || 'Error al subir la evidencia.' };
+    }
+  };
+    const eliminarEvidenciaSubtarea = async (tareaId, subtareaId, url) => {
+    try {
+      await deleteEvidenciaSubtarea(tareaId, subtareaId, url);
+
+      setTareas(prev => prev.map(t => {
+        if (t.id !== tareaId) return t;
+        return {
+          ...t,
+          subtareas: t.subtareas.map(s =>
+            s.id === subtareaId
+              ? { ...s, evidencias: (s.evidencias || []).filter(e => e !== url) }
+              : s
+          ),
+        };
+      }));
+
+      return { ok: true };
+    } catch (err) {
+      console.error('Error al eliminar evidencia:', err);
+      return { ok: false, message: err?.response?.data?.message || err.message || 'Error al eliminar la evidencia.' };
+    }
+  };
+
   const totalTareas        = tareas.length;
   const tareasRealizadas   = tareas.filter(t => t.estado === 'Realizado').length;
   const tareasNoRealizadas = tareas.filter(t => t.estado === 'No Realizado').length;
@@ -99,10 +145,10 @@ export const TareasProvider = ({ children }) => {
       status:      t.estado === 'Realizado' ? 'realizada' : 'pendiente',
     }));
 
-  return (
+       return (
     <TareasContext.Provider value={{
       tareas, loading, fetchTareas,
-      agregarTareaLocal, toggleSubtarea,
+      agregarTareaLocal, toggleSubtarea, subirEvidenciaSubtarea, eliminarEvidenciaSubtarea,
       totalTareas, tareasRealizadas, tareasNoRealizadas,
       actividadReciente,
     }}>

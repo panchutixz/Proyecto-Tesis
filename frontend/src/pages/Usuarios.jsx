@@ -1,18 +1,17 @@
 import "@styles/usuarios.css";
 import useGetUser from "@hooks/usuario/useGetUser.jsx";
 import useDeleteUser from "@hooks/usuario/useDeleteUser.jsx";
-import useCreateUser from "@hooks/usuario/useCreateUser.jsx";       // Hook para Administrador
-import useEditUser from "@hooks/usuario/useEditUser.jsx";           // Hook para Administrador
+import useCreateUser from "@hooks/usuario/useCreateUser.jsx";
+import useEditUser from "@hooks/usuario/useEditUser.jsx";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 const rolColors = {
-  administrador: '#0d47a1',   // azul oscuro
-  supervisor: '#0288d1',         // celeste/azul
-  encargado: '#2e7d32',      // verde
-  empleado: '#e65100',     // naranjo fuerte
-  bodeguero: '#6a1b9a'        // púrpura
+  administrador: '#0d47a1',
+  supervisor: '#0288d1',
+  empleado: '#e65100',
+  bodeguero: '#6a1b9a',
 };
 
 function rolStyle(rol) {
@@ -32,9 +31,10 @@ const Users = () => {
   const { user: authUser } = useAuth();
   const { users, fetchUsers } = useGetUser();
   const { handleDeleteUser } = useDeleteUser(fetchUsers);
-  const { handleCreateUser } = useCreateUser(fetchUsers);          // Admin
-  const { handleEditUser } = useEditUser(fetchUsers);              // Admin
+  const { handleCreateUser } = useCreateUser(fetchUsers);
+  const { handleEditUser } = useEditUser(fetchUsers);
 
+  const esAdmin = authUser?.rol === 'Administrador';
 
   useEffect(() => {
     fetchUsers();
@@ -47,7 +47,7 @@ const Users = () => {
           <h2>LISTADO DE PERSONAL</h2>
           <p className="users-subtitle">— todos los trabajadores</p>
         </div>
-        {authUser?.rol === 'Administrador' && (
+        {esAdmin && (
           <button className="users-addbtn" onClick={handleCreateUser}>
             Añadir Usuario
           </button>
@@ -66,7 +66,7 @@ const Users = () => {
             <th>Teléfono</th>
             <th>Estado</th>
             <th>Jornada</th>
-            <th>Acciones</th>
+            {esAdmin && <th>Acciones</th>}
           </tr>
         </thead>
         <tbody>
@@ -85,9 +85,9 @@ const Users = () => {
                 <td>{u.telefono}</td>
                 <td>{u.estado}</td>
                 <td>{u.jornada}</td>
-                <td>
-                  <div className="user-acciones">
-                    {authUser?.rol === 'Administrador' && (
+                {esAdmin && (
+                  <td>
+                    <div className="user-acciones">
                       <button
                         className="btn-user-editar"
                         onClick={() => handleEditUser(u.id, u)}
@@ -95,23 +95,23 @@ const Users = () => {
                       >
                         <FiEdit2 />
                       </button>
-                    )}
-                    {!(authUser && ["Administrador", "Supervisor", "Encargado"].includes(authUser.rol) && authUser.id === u.id) && (
-                      <button
-                        className="btn-user-eliminar"
-                        onClick={() => handleDeleteUser(u.id)}
-                        title="Eliminar usuario"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    )}
-                  </div>
-                </td>
+                      {authUser.id !== u.id && (
+                        <button
+                          className="btn-user-eliminar"
+                          onClick={() => handleDeleteUser(u.id)}
+                          title="Eliminar usuario"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="9">No hay usuarios disponibles</td>
+              <td colSpan={esAdmin ? 9 : 8}>No hay usuarios disponibles</td>
             </tr>
           )}
         </tbody>

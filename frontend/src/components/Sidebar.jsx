@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../services/auth.service";
 import { FiAlertTriangle } from 'react-icons/fi';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   // Controla si el drawer está abierto en modo celular (en desktop siempre se ve)
@@ -19,6 +20,14 @@ const Sidebar = () => {
     navigate(path);
     setMobileOpen(false);
   };
+
+  // Clase del botón de navegación: si la ruta coincide con la actual, queda "marcado"
+  const navItemClass = (path) =>
+    `w-full text-left p-2 rounded transition-colors ${
+      location.pathname === path
+        ? "bg-gray-700 text-white font-semibold"
+        : "hover:bg-gray-700"
+    }`;
 
   // Se ejecuta solo si el usuario confirma el cierre en el modal
   const handleLogoutConfirm = () => {
@@ -83,39 +92,75 @@ const Sidebar = () => {
             <li>
               <button
                 onClick={() => goTo("/home")}
-                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                className={navItemClass("/home")}
               >
                 Inicio
               </button>
             </li>
 
             {/* Usuarios */}
-            {["administrador"].includes(userRole?.toLowerCase()) && (
-             <li>
-               <button
-                  onClick={() => goTo("/usuarios")}
-                  className="w-full text-left hover:bg-gray-700 p-2 rounded"
-               >
-                 Usuarios
-              </button>
-            </li>
+            {["administrador", "supervisor"].includes(userRole?.toLowerCase()) && (
+               <li>
+                  <button
+                    onClick={() => goTo("/usuarios")}
+                    className={navItemClass("/usuarios")}
+                  >
+                   Usuarios
+                  </button>
+                </li>
+              )}
+
+            {/* Tareas — todos los roles excepto bodeguero */}
+            {userRole?.toLowerCase() !== "bodeguero" && (
+              <li>
+                <button
+                  onClick={() => goTo('/tareas')}
+                  className={navItemClass("/tareas")}
+                >
+                  Tareas
+                </button>
+              </li>
             )}
-            
-            {/* Tareas — todos los roles */}
+
+            {/* Insumos — visible solo para administrador y bodeguero */}
+              {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
+                <li>
+                  <button
+                      onClick={() => goTo("/insumos")}
+                      className={navItemClass("/insumos")}
+                  >
+                     Insumos
+                  </button>
+
+                </li>
+              )}
+
+            {/* Historial de Insumos — visible solo para administrador y bodeguero */}
+              {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (
+                <li>
+                  <button
+                    onClick={() => goTo("/historial-insumos")}
+                    className={navItemClass("/historial-insumos")}
+                  >
+                    Historial Insumos
+                  </button>
+                </li>
+              )}
+
+            {/* Solicitudes de Insumos — visible para todos los roles */}
             <li>
               <button
-                onClick={() => goTo('/tareas')}
-                className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                onClick={() => goTo("/solicitudes-insumo")}
+                className={navItemClass("/solicitudes-insumo")}
               >
-                Tareas
+                Solicitudes de Insumos
               </button>
             </li>
-
             {/* Perfil */}
             <li>
               <button
                   onClick={() => goTo("/profile")}
-                  className="w-full text-left hover:bg-gray-700 p-2 rounded"
+                  className={navItemClass("/profile")}
                >
                   Perfil
               </button>

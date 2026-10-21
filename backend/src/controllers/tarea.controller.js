@@ -5,10 +5,15 @@ import { AppDataSource } from "../config/configDb.js";
 import { TareaEntity }    from "../entities/tarea.entity.js";
 import { SubtareaEntity } from "../entities/subtarea.entity.js";
 
+const MAX_FOTOS_EVIDENCIA = 4;
+
+
 const HORA = () =>
   new Date().toLocaleTimeString("es-CL", {
     hour: "2-digit", minute: "2-digit", hour12: false,
   });
+
+ 
 
 // ── GET /api/tareas ────────────────────────────────────────────────────────
 export async function getTareas(req, res) {
@@ -39,8 +44,9 @@ export async function getTareas(req, res) {
 export async function createTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
-      return res.status(403).json({ message: "Solo el administrador puede asignar tareas." });
+    // En createTarea:
+    if (!["administrador", "supervisor"].includes(rol)) {
+      return res.status(403).json({ message: "Solo el administrador o supervisor pueden asignar tareas." });
     }
 
     const { nombre, departamento, actividad, jornada, trabajadorId, trabajadorNombre, subtareas } = req.body;
@@ -87,7 +93,7 @@ export async function createTarea(req, res) {
 export async function updateTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
+    if (!["administrador", "supervisor"].includes(rol)) {
       return res.status(403).json({ message: "Sin permisos para editar tareas." });
     }
 
@@ -169,7 +175,7 @@ export async function updateTarea(req, res) {
 export async function deleteTarea(req, res) {
   try {
     const rol = req.user?.rol?.toLowerCase();
-    if (rol !== "administrador") {
+    if (!["administrador", "supervisor"].includes(rol)) {
       return res.status(403).json({ message: "Sin permisos para eliminar tareas." });
     }
 
@@ -253,31 +259,84 @@ export async function updateSubtareaEstado(req, res) {
   }
 }
 
-// ── POST /api/tareas/:id/evidencia ─────────────────────────────────────────
-export async function uploadEvidencia(req, res) {
+// ── POST /api/tareas/:tareaId/subtareas/:subtareaId/evidencia ──────────────
+export async function uploadEvidenciaSubtarea(req, res) {
   try {
-    const { id } = req.params;
-    const tareaRepo = AppDataSource.getRepository(TareaEntity);
+    const { tareaId, subtareaId } = req.params;
+    const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
 
-    const tarea = await tareaRepo.findOne({ where: { id: Number(id) } });
-    if (!tarea) return res.status(404).json({ message: "Tarea no encontrada." });
+    const subtarea = await subtareaRepo.findOne({ where: { id: Number(subtareaId) } });
+    if (!subtarea) return res.status(404).json({ message: "Subtarea no encontrada." });
 
-    if (!req.file) return res.status(400).json({ message: "No se recibió ninguna imagen." });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No se recibió ninguna imagen." });
+    }
 
-    const ext      = path.extname(req.file.originalname) || ".jpg";
-    const filename = `tarea_${id}_${Date.now()}${ext}`;
-    const destPath = path.join("src", "public", "uploads", filename);
-    fs.writeFileSync(destPath, req.file.buffer);
+    const evidenciasActuales = Array.isArray(subtarea.evidencias) ? subtarea.evidencias : [];
 
-    tarea.evidencia_url = `/uploads/${filename}`;
-    await tareaRepo.save(tarea);
+    if (evidenciasActuales.length + req.files.length > MAX_FOTOS_EVIDENCIA) {
+      return res.status(400).json({
+        message: `Máximo ${MAX_FOTOS_EVIDENCIA} fotos por subtarea. Ya tienes ${evidenciasActuales.length}.`,
+      });
+    }
+
+    const uploadDir = path.join("src", "public", "uploads");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    const nuevasUrls = [];
+    for (const file of req.files) {
+      const ext      = path.extname(file.originalname) || ".jpg";
+      const filename = `subtarea_${subtareaId}_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
+      const destPath = path.join(uploadDir, filename);
+      fs.writeFileSync(destPath, file.buffer);
+      nuevasUrls.push(`/uploads/${filename}`);
+    }
+
+    subtarea.evidencias = [...evidenciasActuales, ...nuevasUrls];
+    await subtareaRepo.save(subtarea);
 
     return res.status(200).json({
       message: "Evidencia subida correctamente.",
-      data: { evidencia_url: tarea.evidencia_url },
+      data: { evidencias: subtarea.evidencias },
     });
   } catch (error) {
-    console.error("Error en uploadEvidencia:", error);
+    console.error("Error en uploadEvidenciaSubtarea:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}
+// ── DELETE /api/tareas/:tareaId/subtareas/:subtareaId/evidencia ────────────
+export async function deleteEvidenciaSubtarea(req, res) {
+  try {
+    const { tareaId, subtareaId } = req.params;
+    const { url } = req.body;
+
+    if (!url) return res.status(400).json({ message: "Falta la URL de la evidencia a eliminar." });
+
+    const subtareaRepo = AppDataSource.getRepository(SubtareaEntity);
+    const subtarea = await subtareaRepo.findOne({ where: { id: Number(subtareaId) } });
+    if (!subtarea) return res.status(404).json({ message: "Subtarea no encontrada." });
+
+    const evidenciasActuales = Array.isArray(subtarea.evidencias) ? subtarea.evidencias : [];
+
+    if (!evidenciasActuales.includes(url)) {
+      return res.status(404).json({ message: "Esa evidencia no existe en esta subtarea." });
+    }
+
+    // Elimina el archivo físico del servidor
+    const rutaArchivo = path.join("src", "public", url);
+    if (fs.existsSync(rutaArchivo)) {
+      fs.unlinkSync(rutaArchivo);
+    }
+
+    subtarea.evidencias = evidenciasActuales.filter(e => e !== url);
+    await subtareaRepo.save(subtarea);
+
+    return res.status(200).json({
+      message: "Evidencia eliminada correctamente.",
+      data: { evidencias: subtarea.evidencias },
+    });
+  } catch (error) {
+    console.error("Error en deleteEvidenciaSubtarea:", error);
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }

@@ -12,7 +12,11 @@ import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Tareas from '@pages/Tareas';
+import Insumos from '@pages/Insumos';    
+import Solicitudes from '@pages/Solicitudes';
 import {TareasProvider} from '@context/TareasContext';
+import HistorialInsumos from '@pages/HistorialInsumos'; 
+
 
 import { UserProvider } from '@context/UserContext';
 
@@ -37,7 +41,7 @@ const router = createBrowserRouter([
           {
             path: "usuarios",
             element: (
-              <ProtectedRoute allowedRoles={["administrador", "supervisor", "encargado"]}>
+              <ProtectedRoute allowedRoles={["administrador", "supervisor"]}>
                 <Usuarios />
               </ProtectedRoute>
             ),
@@ -61,20 +65,41 @@ const router = createBrowserRouter([
           {
             path: 'tareas',
             element: (
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["administrador", "supervisor", "empleado"]}>
                 <Tareas />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "insumos",                                  
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "bodeguero"]}>
+                <Insumos />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "solicitudes-insumo",
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "supervisor", "empleado", "bodeguero"]}>
+                <Solicitudes />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "historial-insumos",                             
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "bodeguero"]}>
+                <HistorialInsumos />
               </ProtectedRoute>
             ),
           },
         ]
       },
-
-      
       {
         path: 'acceso-denegado',
         element: <AccesoDenegado />
       },
-      
       {
         path: '*',
         element: <Error404 />
@@ -82,8 +107,7 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
-
+       
 ReactDOM.createRoot(document.getElementById('root')).render(
   <UserProvider>
     <RouterProvider router={router} />

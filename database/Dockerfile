@@ -8,3 +8,5 @@ ENV POSTGRES_PASSWORD=huachimingo
 COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
 EXPOSE 5432
+
+#a

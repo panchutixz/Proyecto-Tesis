@@ -11,8 +11,8 @@ const domainEmailValidator = (value, helpers) => {
   return value;
 };
 
-const telefonoRegex = /^\+?[0-9\s\-]{7,20}$/;
-const passwordRegex = /^[a-zA-Z0-9]+$/;
+export const telefonoRegex = /^\+?[0-9\s\-]{7,20}$/;
+export const passwordRegex = /^[a-zA-Z0-9]+$/;
 const allowedRoles = ["Administrador", "Supervisor", "Empleado", "Bodeguero", "administrador", "supervisor", "empleado", "bodeguero"];
 
 

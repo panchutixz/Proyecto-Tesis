@@ -10,8 +10,8 @@ export async function getUsers(req, res) {
   const usuarioAutenticado = req.user;
   const rol = usuarioAutenticado?.rol?.toLowerCase();
 
-  if (rol !== "administrador") {
-    return res.status(403).json({ message: "Acceso denegado. Solo administrador puede ver usuarios." });
+  if (!["administrador", "supervisor"].includes(rol)) {
+    return res.status(403).json({ message: "Acceso denegado. No tienes permisos para ver usuarios." });
   }
 
   try {
@@ -29,7 +29,7 @@ export async function getUserById(req, res) {
   const usuarioAutenticado = req.user;
   const rol = usuarioAutenticado?.rol?.toLowerCase();
 
-  if (rol !== "administrador" && rol !== "supervisor" && rol !== "encargado") {
+  if (rol !== "administrador" && rol !== "supervisor") {
     return res.status(403).json({ message: "Acceso denegado. Solo administradores, supervisores y encargados pueden ver usuarios por ID." });
   }
 
