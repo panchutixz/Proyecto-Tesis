@@ -121,6 +121,17 @@ const Sidebar = () => {
                 </button>
               </li>
             )}
+            {/* Asistencia — visible solo para administrador y supervisor */}
+            {["administrador", "supervisor"].includes(userRole?.toLowerCase()) && (
+              <li>
+                <button
+                  onClick={() => goTo("/asistencia")}
+                  className={navItemClass("/asistencia")}
+                >
+                  Asistencia
+                </button>
+              </li>
+            )}
 
             {/* Insumos — visible solo para administrador y bodeguero */}
               {["administrador", "bodeguero"].includes(userRole?.toLowerCase()) && (

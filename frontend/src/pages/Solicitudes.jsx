@@ -18,14 +18,14 @@ const Solicitudes = () => {
   const { handleCrearSolicitud } = useCrearSolicitud(fetchSolicitudes, insumos, puedeVerStock);
   const { handleAprobar, handleRechazar } = useResolverSolicitud(fetchSolicitudes);
 
-  const [jornada, setJornada] = useState('Mañana');
+  const [jornada, setJornada] = useState('Todas');
 
   useEffect(() => {
     fetchSolicitudes();
     if (puedeSolicitar) fetchInsumos();
   }, []);
 
-  const solicitudesFiltradas = puedeResolver
+  const solicitudesFiltradas = puedeResolver && jornada !== 'Todas'
     ? solicitudes.filter(s => s.solicitante_jornada === jornada)
     : solicitudes;
   const badgeClase = (estado) => {
@@ -45,14 +45,16 @@ const Solicitudes = () => {
                 Solicitudes de Insumos
               </h1>
               <p className="text-sm text-[#5b78a2] mt-1">
-                {puedeResolver ? `Jornada ${jornada}` : 'Tus solicitudes'}
+                {puedeResolver
+                  ? (jornada === 'Todas' ? 'Todas las jornadas' : `Jornada ${jornada}`)
+                  : 'Tus solicitudes'}
               </p>
             </div>
 
             <div className="flex items-center gap-4">
               {puedeResolver && (
                 <div className="flex bg-[#eef3fb] rounded-full p-1">
-                  {['Mañana', 'Tarde'].map(j => (
+                  {['Todas', 'Mañana', 'Tarde'].map(j => (
                     <button
                       key={j}
                       onClick={() => setJornada(j)}
@@ -85,7 +87,7 @@ const Solicitudes = () => {
             ) : solicitudesFiltradas.length === 0 ? (
               <div className="rounded-[20px] border border-dashed border-slate-300 bg-[#f2f6ff] p-10 text-center text-slate-500">
                 {puedeResolver
-                  ? `No hay solicitudes para la jornada ${jornada}.`
+                  ? (jornada === 'Todas' ? 'No hay solicitudes registradas.' : `No hay solicitudes para la jornada ${jornada}.`)
                   : 'No hay solicitudes realizadas todavía.'}
               </div>
             ) : (
