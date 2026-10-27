@@ -16,7 +16,7 @@ import Insumos from '@pages/Insumos';
 import Solicitudes from '@pages/Solicitudes';
 import {TareasProvider} from '@context/TareasContext';
 import HistorialInsumos from '@pages/HistorialInsumos'; 
-
+import Asistencia from '@pages/Asistencia';
 
 import { UserProvider } from '@context/UserContext';
 
@@ -83,6 +83,14 @@ const router = createBrowserRouter([
             element: (
               <ProtectedRoute allowedRoles={["administrador", "supervisor", "empleado", "bodeguero"]}>
                 <Solicitudes />
+              </ProtectedRoute>
+            ),
+          },
+                    {
+            path: "asistencia",
+            element: (
+              <ProtectedRoute allowedRoles={["administrador", "supervisor"]}>
+                <Asistencia />
               </ProtectedRoute>
             ),
           },
