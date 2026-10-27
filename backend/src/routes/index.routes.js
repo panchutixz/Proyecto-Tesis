@@ -5,7 +5,7 @@ import profileRoutes from "./profile.routes.js";
 import tareaRoutes from "./tarea.routes.js";
 import insumoRoutes from "./insumo.routes.js";
 import solicitudInsumoRoutes from "./solicitudInsumo.routes.js";
-
+import asistenciaRoutes from "./asistencia.routes.js";
 
 
 export function routerApi(app) {
@@ -17,4 +17,5 @@ export function routerApi(app) {
   router.use("/tareas", tareaRoutes);
   router.use("/insumos", insumoRoutes);
   router.use("/solicitudes-insumo", solicitudInsumoRoutes);
+  router.use("/asistencias", asistenciaRoutes);
 }
