@@ -66,6 +66,7 @@ export const TareasProvider = ({ children }) => {
       return {
         ...t,
         subtareas:    nuevasSub,
+        updated_at:   new Date().toISOString(),
         estado:       todasRealizadas ? 'Realizado' : 'No Realizado',
         horaRegistro: todasRealizadas
           ? new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
