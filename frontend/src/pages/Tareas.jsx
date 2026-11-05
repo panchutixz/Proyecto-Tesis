@@ -1,5 +1,5 @@
 import '@styles/tareas.css';
-import { useState, useRef }  from 'react';
+import { useState, useRef, useEffect, useMemo }  from 'react';
 import Swal from 'sweetalert2';
 import { useAuth }           from '@context/AuthContext.jsx';
 import { useTareas }         from '@context/TareasContext.jsx';
@@ -17,10 +17,25 @@ import {
   FiPaperclip,
   FiImage,
   FiX,
+  FiCalendar,
+  FiClock,
 } from 'react-icons/fi';
 
 const BASE_URL   = import.meta.env.VITE_BASE_URL || '';
 const MAX_FOTOS  = 4;
+
+const TZ = 'America/Santiago';
+
+// "2026-11-05" (día en hora de Chile)
+const claveDia = (fecha) =>
+  new Date(fecha || Date.now()).toLocaleDateString('en-CA', { timeZone: TZ });
+
+// "Jueves 05-11-2026"
+const etiquetaDia = (clave) => {
+  const [y, m, d] = clave.split('-').map(Number);
+  const dia = new Date(y, m - 1, d).toLocaleDateString('es-CL', { weekday: 'long' });
+  return `${dia.charAt(0).toUpperCase()}${dia.slice(1)} ${String(d).padStart(2, '0')}-${String(m).padStart(2, '0')}-${y}`;
+};
 
 const Tareas = () => {
   const { user }                                    = useAuth();
@@ -40,10 +55,54 @@ const Tareas = () => {
   const [jornada, setJornada]   = useState(isEmpleado ? jornadaEmpleado : 'Mañana');
   const [expanded, setExpanded] = useState({});
   const [subiendoKey, setSubiendoKey] = useState(null); // `${tareaId}-${subtareaId}`
-  const fileInputRefs = useRef({});
+    const fileInputRefs = useRef({});
+
+  const [diaSel, setDiaSel]           = useState(null); // null = hoy
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const menuRef = useRef(null);
+
+  // Cierra el menú de días al hacer clic fuera
+  useEffect(() => {
+    const cerrar = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false);
+    };
+    document.addEventListener('mousedown', cerrar);
+    return () => document.removeEventListener('mousedown', cerrar);
+  }, []);
+
+  const hoy       = claveDia();
+  const diaActivo = diaSel || hoy;
+  const esHoy     = diaActivo === hoy;
+
+  const diaCreacion    = (t) => claveDia(t.created_at);
+  const diaActualizada = (t) => claveDia(t.updated_at || t.created_at);
+  const pendiente      = (t) => t.estado !== 'Realizado';
+
+  // Días anteriores en que se asignaron tareas (más reciente primero)
+  const diasPrevios = useMemo(() => {
+    const mapa = {};
+    tareas.forEach(t => {
+      const k = diaCreacion(t);
+      if (k !== hoy) mapa[k] = (mapa[k] || 0) + 1;
+    });
+    return Object.entries(mapa).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [tareas, hoy]);
+
+  const elegirDia = (clave) => {
+    setDiaSel(clave);
+    setMenuAbierto(false);
+  };
+
+  // Hoy: tareas de hoy + las que siguen pendientes + las terminadas hoy.
+  // Otro día: las tareas asignadas ese día.
+  const visibles = tareas.filter(t =>
+    esHoy
+      ? (diaCreacion(t) === hoy || diaActualizada(t) === hoy || pendiente(t))
+      : diaCreacion(t) === diaActivo
+  );
 
   const toggle    = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }));
-  const filtradas = tareas.filter(t => t.jornada === jornada);
+  const filtradas = visibles.filter(t => t.jornada === jornada);
 
   const getImageUrl = (path) => `${BASE_URL.replace('/api', '')}${path}`;
 
@@ -128,10 +187,51 @@ const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
       <div className="tareas-header">
         <div className="tareas-title-wrap">
           <h2>{isAdmin ? 'Gestión de Tareas' : 'Mis Tareas del Día'}</h2>
-          <p className="tareas-subtitle">— Jornada {jornada}</p>
+          <p className="tareas-subtitle">
+            — Jornada {jornada} · {esHoy ? 'hoy' : etiquetaDia(diaActivo)}
+          </p>
         </div>
 
         <div className="tareas-header-right">
+          <div className="dia-filtro" ref={menuRef}>
+            <button
+              className={`dia-filtro-btn ${!esHoy ? 'active' : ''}`}
+              onClick={() => setMenuAbierto(v => !v)}
+            >
+              <FiCalendar />
+              {esHoy ? 'Hoy' : etiquetaDia(diaActivo)}
+              <FiChevronDown />
+            </button>
+
+            {menuAbierto && (
+              <div className="dia-filtro-menu">
+                <button
+                  className={`dia-opcion ${esHoy ? 'active' : ''}`}
+                  onClick={() => elegirDia(null)}
+                >
+                  <span>Hoy</span>
+                </button>
+
+                <div className="dia-sep">Días anteriores con tareas</div>
+
+                {diasPrevios.length === 0 ? (
+                  <p className="dia-vacio">Aún no hay días anteriores con tareas.</p>
+                ) : (
+                  diasPrevios.map(([clave, n]) => (
+                    <button
+                      key={clave}
+                      className={`dia-opcion ${diaActivo === clave ? 'active' : ''}`}
+                      onClick={() => elegirDia(clave)}
+                    >
+                      <span>{etiquetaDia(clave)}</span>
+                      <span className="dia-count">{n} tarea{n > 1 ? 's' : ''}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
           {isAdmin ? (
             <div className="jornada-pills">
               {['Mañana', 'Tarde'].map(j => (
@@ -160,7 +260,11 @@ const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
       {loading ? (
         <p className="tareas-empty">Cargando tareas...</p>
       ) : filtradas.length === 0 ? (
-        <p className="tareas-empty">No hay tareas para la jornada {jornada}.</p>
+        <p className="tareas-empty">
+          {esHoy
+            ? `Hoy no hay tareas para la jornada ${jornada}.`
+            : `No hay tareas de ese día para la jornada ${jornada}.`}
+        </p>
       ) : (
         <>
           <div className="tareas-list">
@@ -182,6 +286,9 @@ const handleArchivosElegidos = async (tareaId, subtareaId, e) => {
                         <FiMapPin className="meta-icon" /> {tarea.departamento} &nbsp;|&nbsp; Jornada {tarea.jornada}
                         {isAdmin && (
                           <> &nbsp;|&nbsp; <FiUser className="meta-icon" /> Asignado: {tarea.trabajador}</>
+                        )}
+                        {esHoy && diaCreacion(tarea) !== hoy && pendiente(tarea) && (
+                          <> &nbsp;|&nbsp; <FiClock className="meta-icon" /> Pendiente desde {etiquetaDia(diaCreacion(tarea))}</>
                         )}
                       </p>
                     </div>
