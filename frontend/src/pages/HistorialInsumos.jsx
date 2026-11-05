@@ -1,8 +1,8 @@
 import "@styles/historialInsumos.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useGetMovimientos from "@hooks/insumo/useGetMovimientos.jsx";
 import { useAuth } from "@context/AuthContext.jsx";
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiCalendar, FiChevronDown } from "react-icons/fi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -14,9 +14,27 @@ const formatFecha = (fechaISO) => {
   });
 };
 
+const TZ = "America/Santiago";
+
+// "2026-11-05" (día en hora de Chile) a partir de una fecha
+const claveDia = (fecha) =>
+  new Date(fecha).toLocaleDateString("en-CA", { timeZone: TZ });
+
+const hoyClave = () => claveDia(new Date());
+
+// "Jueves 05-11-2026"
+const etiquetaDia = (clave) => {
+  const [y, m, d] = clave.split("-").map(Number);
+  const dia = new Date(y, m - 1, d).toLocaleDateString("es-CL", { weekday: "long" });
+  return `${dia.charAt(0).toUpperCase()}${dia.slice(1)} ${String(d).padStart(2, "0")}-${String(m).padStart(2, "0")}-${y}`;
+};
+
 const HistorialInsumos = () => {
   const { movimientos, loading, fetchMovimientos } = useGetMovimientos();
   const [jornada, setJornada] = useState("Todas");
+  const [diaSel, setDiaSel] = useState(null); // null = hoy
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const menuRef = useRef(null);
 
   const { user } = useAuth();
   const esBodeguero = user?.rol === "Bodeguero";
@@ -24,6 +42,42 @@ const HistorialInsumos = () => {
   useEffect(() => {
     fetchMovimientos(jornada);
   }, [jornada]);
+
+  // Cierra el menú de días al hacer clic fuera
+  useEffect(() => {
+    const cerrar = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false);
+    };
+    document.addEventListener("mousedown", cerrar);
+    return () => document.removeEventListener("mousedown", cerrar);
+  }, []);
+
+  const hoy = hoyClave();
+  const diaActivo = diaSel || hoy;
+  const esHoy = diaActivo === hoy;
+
+  // Cantidad de movimientos por día (más reciente primero)
+  const diasConMovimientos = useMemo(() => {
+    const mapa = {};
+    movimientos.forEach((m) => {
+      const k = claveDia(m.fecha);
+      mapa[k] = (mapa[k] || 0) + 1;
+    });
+    return Object.entries(mapa).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [movimientos]);
+
+  const diasPrevios = diasConMovimientos.filter(([k]) => k !== hoy);
+  const movsHoy = diasConMovimientos.find(([k]) => k === hoy)?.[1] || 0;
+
+  const movimientosDia = useMemo(
+    () => movimientos.filter((m) => claveDia(m.fecha) === diaActivo),
+    [movimientos, diaActivo]
+  );
+
+  const elegirDia = (clave) => {
+    setDiaSel(clave);
+    setMenuAbierto(false);
+  };
 
   const descargarPDF = () => {
     const doc = new jsPDF({ orientation: "landscape" });
@@ -34,10 +88,10 @@ const HistorialInsumos = () => {
 
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Filtro de jornada: ${jornada}`, 14, 23);
+    doc.text(`Día: ${etiquetaDia(diaActivo)}   |   Filtro de jornada: ${jornada}`, 14, 23);
     doc.text(`Generado: ${new Date().toLocaleString("es-CL")}`, 14, 28);
 
-    const filas = movimientos.map((m) => esBodeguero
+    const filas = movimientosDia.map((m) => esBodeguero
       ? [formatFecha(m.fecha), m.tipo, m.insumo_nombre, m.cantidad, m.realizado_por_nombre || "—"]
       : [formatFecha(m.fecha), m.tipo, m.insumo_nombre, m.cantidad, m.jornada || "—", m.trabajador_nombre || "—", m.realizado_por_nombre || "—"]
     );
@@ -56,7 +110,7 @@ const HistorialInsumos = () => {
       columnStyles: { 3: { halign: "center" } },
     });
 
-    const nombreArchivo = `historial_insumos_${jornada.toLowerCase()}_${Date.now()}.pdf`;
+    const nombreArchivo = `historial_insumos_${diaActivo}_${jornada.toLowerCase()}.pdf`;
     doc.save(nombreArchivo);
   };
 
@@ -67,10 +121,51 @@ const HistorialInsumos = () => {
           <h2>{esBodeguero ? "MI HISTORIAL DE REPOSICIONES" : "HISTORIAL DE MOVIMIENTOS"}</h2>
           <p className="historial-subtitle">
             {esBodeguero ? "— tus actualizaciones de almacén" : "— entregas y reposiciones de insumos"}
+            {" · "}{esHoy ? "hoy" : etiquetaDia(diaActivo)}
           </p>
         </div>
 
         <div className="historial-header-actions">
+          <div className="dia-filtro" ref={menuRef}>
+            <button
+              className={`dia-filtro-btn ${!esHoy ? "active" : ""}`}
+              onClick={() => setMenuAbierto((v) => !v)}
+            >
+              <FiCalendar />
+              {esHoy ? "Hoy" : etiquetaDia(diaActivo)}
+              <FiChevronDown />
+            </button>
+
+            {menuAbierto && (
+              <div className="dia-filtro-menu">
+                <button
+                  className={`dia-opcion ${esHoy ? "active" : ""}`}
+                  onClick={() => elegirDia(null)}
+                >
+                  <span>Hoy</span>
+                  <span className="dia-count">{movsHoy} mov.</span>
+                </button>
+
+                <div className="dia-sep">Días anteriores con movimientos</div>
+
+                {diasPrevios.length === 0 ? (
+                  <p className="dia-vacio">Aún no hay días anteriores con movimientos.</p>
+                ) : (
+                  diasPrevios.map(([clave, n]) => (
+                    <button
+                      key={clave}
+                      className={`dia-opcion ${diaActivo === clave ? "active" : ""}`}
+                      onClick={() => elegirDia(clave)}
+                    >
+                      <span>{etiquetaDia(clave)}</span>
+                      <span className="dia-count">{n} mov.</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
           {!esBodeguero && (
             <div className="jornada-pills">
               {["Todas", "Mañana", "Tarde"].map((j) => (
@@ -85,7 +180,7 @@ const HistorialInsumos = () => {
             </div>
           )}
 
-          <button className="historial-pdfbtn" onClick={descargarPDF} disabled={movimientos.length === 0}>
+          <button className="historial-pdfbtn" onClick={descargarPDF} disabled={movimientosDia.length === 0}>
             <FiDownload /> Descargar PDF
           </button>
         </div>
@@ -107,8 +202,8 @@ const HistorialInsumos = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan={esBodeguero ? 5 : 7}>Cargando historial...</td></tr>
-            ) : movimientos.length > 0 ? (
-              movimientos.map((m) => (
+            ) : movimientosDia.length > 0 ? (
+              movimientosDia.map((m) => (
                 <tr key={m.id}>
                   <td>{formatFecha(m.fecha)}</td>
                   <td>
@@ -127,7 +222,13 @@ const HistorialInsumos = () => {
                 </tr>
               ))
             ) : (
-              <tr><td colSpan={esBodeguero ? 5 : 7}>No hay movimientos registrados para este filtro.</td></tr>
+              <tr>
+                <td colSpan={esBodeguero ? 5 : 7}>
+                  {esHoy
+                    ? "Hoy no hay movimientos registrados."
+                    : "No hay movimientos registrados para este día."}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
