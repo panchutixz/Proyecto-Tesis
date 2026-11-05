@@ -73,7 +73,7 @@ export const TareasProvider = ({ children }) => {
           : t.horaRegistro,
       };
     }));
-// Llamada al backend
+
     try {
       await updateSubtareaEstado(tareaId, subtareaId, nuevoEstado);
     } catch (err) {
