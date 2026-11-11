@@ -158,6 +158,19 @@ const Sidebar = () => {
                 </li>
               )}
 
+            {/* Mis Insumos — empleado y supervisor */}
+            {["empleado", "supervisor"].includes(userRole?.toLowerCase()) && (
+
+            <li>
+                <button
+                  onClick={() => goTo("/mis-insumos")}
+                  className={navItemClass("/mis-insumos")}
+                >
+                  Mis Insumos
+                </button>
+              </li>
+            )}
+
             {/* Solicitudes de Insumos — visible para todos los roles */}
             <li>
               <button

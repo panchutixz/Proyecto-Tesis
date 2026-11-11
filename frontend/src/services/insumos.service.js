@@ -85,3 +85,15 @@ export async function GetMovimientosInsumos(jornada) {
     throw error;
   }
 }
+
+export async function GetMisInsumos() {
+  try {
+    const response = await axios.get('/insumos/mis-insumos');
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message || JSON.stringify(error.response.data));
+    }
+    throw error;
+  }
+}
