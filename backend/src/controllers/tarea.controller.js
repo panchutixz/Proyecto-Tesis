@@ -4,6 +4,7 @@ import path from "path";
 import { AppDataSource } from "../config/configDb.js";
 import { TareaEntity }    from "../entities/tarea.entity.js";
 import { SubtareaEntity } from "../entities/subtarea.entity.js";
+import { notificarTareaAsignada } from "../services/solicitudEmail.service.js";
 
 const MAX_FOTOS_EVIDENCIA = 4;
 
@@ -82,6 +83,8 @@ export async function createTarea(req, res) {
       relations: ["subtareas"],
     });
 
+    notificarTareaAsignada(tareaGuardada, Array.isArray(subtareas) ? subtareas : []);
+
     return res.status(201).json({ message: "Tarea creada exitosamente.", data: tareaCompleta });
   } catch (error) {
     console.error("Error en createTarea:", error);
@@ -121,6 +124,20 @@ export async function updateTarea(req, res) {
       })
       .where("id = :id", { id: Number(id) })
       .execute();
+
+          // Notifica por correo si se reasignó la tarea a otro trabajador
+    if (trabajadorId && String(trabajadorId) !== tarea.trabajador_id) {
+      notificarTareaAsignada(
+        {
+          nombre:        nombre       || tarea.nombre,
+          departamento:  departamento || tarea.departamento,
+          actividad:     actividad    || tarea.actividad,
+          jornada:       jornada      || tarea.jornada,
+          trabajador_id: String(trabajadorId),
+        },
+        Array.isArray(subtareas) ? subtareas : []
+      );
+    }
 
     // 3. Borra las subtareas viejas con query directo (sin cascade)
     if (Array.isArray(subtareas)) {

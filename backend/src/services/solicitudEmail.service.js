@@ -89,3 +89,42 @@ export async function notificarResolucionSolicitud(solicitud) {
     console.error("Error al notificar resolución de solicitud:", error);
   }
 }
+
+// Evita que texto escrito por un usuario se interprete como HTML en el correo
+const esc = (s) =>
+  String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+
+export async function notificarTareaAsignada(tarea, subtareas = []) {
+  try {
+    const userRepo = AppDataSource.getRepository(UserEntity);
+    const trabajador = await userRepo.findOneBy({ id: Number(tarea.trabajador_id) });
+    if (!trabajador?.email) return;
+
+    const listaSubs = subtareas.length
+      ? `<p style="margin-bottom:4px;">Pasos de la tarea:</p>
+         <ul style="margin-top:0;">${subtareas.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>`
+      : "";
+
+    const mensaje = `
+      <p>Hola <strong>${esc(trabajador.nombre)}</strong>, se te asignó una tarea:</p>
+      <p style="font-size:16px;font-weight:bold;color:#172651;">${esc(tarea.nombre)}</p>
+      <p>Lugar: ${esc(tarea.departamento)}<br>
+         Actividad: ${esc(tarea.actividad)}<br>
+         Jornada: ${esc(tarea.jornada)}</p>
+      ${listaSubs}
+    `;
+
+    const html = plantillaBase("Nueva tarea asignada", mensaje, botonHtml("Ver mis Tareas"));
+
+    await enviarCorreo({
+      to: trabajador.email,
+      subject: "Se te asignó una nueva tarea",
+      html,
+      text: `Hola ${trabajador.nombre}, se te asignó la tarea "${tarea.nombre}" (${tarea.departamento}, jornada ${tarea.jornada}). Ingresa en ${LINK_LOGIN}`,
+    });
+  } catch (error) {
+    console.error("Error al notificar tarea asignada:", error);
+  }
+}
