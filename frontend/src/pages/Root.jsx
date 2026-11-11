@@ -7,7 +7,7 @@ function RootContent() {
   const { user } = useAuth();
   const location = useLocation();
 
-  const publicRoutes = ["/", "/auth", "/auth/register", "/login"];
+  const publicRoutes = ["/", "/auth", "/login"];
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
   if (!user || isPublicRoute) {
