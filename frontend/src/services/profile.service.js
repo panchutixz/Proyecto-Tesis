@@ -18,14 +18,6 @@ export async function updateProfile(profileData) {
   }
 }
 
-export async function eliminateProfile() {
-  try {
-    const response = await axios.delete('/profile/private');
-    return response.data;
-  } catch (error) {
-    return error.response?.data || { message: 'Error al eliminar perfil' };
-  }
-}
 
 export async function uploadProfileImage(formData) {
   try {

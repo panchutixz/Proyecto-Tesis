@@ -21,19 +21,6 @@ export async function login(dataUser) {
   }
 }
 
-export async function register(data) {
-  try {
-    const response = await axios.post('/auth/register', data);
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    return { status: error.response?.status || 0, data: error.response?.data || { message: 'Error al conectar con el servidor' } };
-  }
-}
-
-export async function registerUser(nombre, apellido, rut, email, password, telefono, rol) {
-  return await register({ nombre, apellido, rut, email, password, telefono, rol });
-}
-
 export async function logout() {
   try {
     sessionStorage.removeItem('usuario');

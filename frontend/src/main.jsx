@@ -8,7 +8,6 @@ import ProtectedRoute from '@components/ProtectedRoute';
 import AccesoDenegado from '@components/AccesoDenegado'; 
 import Profile from '@pages/profile';
 import '@styles/styles.css';
-import Register from '@pages/Register';
 import Usuarios from '@pages/Usuarios';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Tareas from '@pages/Tareas';
@@ -35,7 +34,6 @@ const router = createBrowserRouter([
        
           { index: true, element: <Login /> }, 
           { path: 'auth', element: <Login /> },
-          { path: 'auth/register', element: <Register /> },
           
           
           {
