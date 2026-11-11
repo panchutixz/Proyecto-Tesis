@@ -2,6 +2,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import { InsumoEntity }  from "../entities/insumo.entity.js";
 import { MovimientoInsumoEntity } from "../entities/movimientoInsumo.entity.js";
+import { In } from "typeorm";
 
 // Calcula el estado del insumo según su cantidad y stock mínimo
 function getEstado(cantidad, stockMinimo) {
@@ -261,6 +262,28 @@ export async function getMovimientos(req, res) {
     return res.status(200).json({ message: "Historial obtenido.", data: movimientos });
   } catch (error) {
     console.error("Error en getMovimientos:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+}
+
+// ── GET /api/insumos/mis-insumos ────────────────────────────────────────────
+// Insumos que recibió el usuario logueado (entregas directas + solicitudes aprobadas).
+// Se filtra por el id del token, así nadie puede ver los de otra persona.
+export async function getMisInsumos(req, res) {
+  try {
+    const movRepo = AppDataSource.getRepository(MovimientoInsumoEntity);
+
+    const movimientos = await movRepo.find({
+      where: {
+        trabajador_id: String(req.user?.id),
+        tipo: In(["Entrega", "Solicitud"]),
+      },
+      order: { fecha: "DESC" },
+    });
+
+    return res.status(200).json({ message: "Mis insumos obtenidos.", data: movimientos });
+  } catch (error) {
+    console.error("Error en getMisInsumos:", error);
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 }

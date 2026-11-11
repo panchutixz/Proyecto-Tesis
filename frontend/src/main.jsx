@@ -16,6 +16,7 @@ import Solicitudes from '@pages/Solicitudes';
 import {TareasProvider} from '@context/TareasContext';
 import HistorialInsumos from '@pages/HistorialInsumos'; 
 import Asistencia from '@pages/Asistencia';
+import MisInsumos from '@pages/MisInsumos';
 
 import { UserProvider } from '@context/UserContext';
 
@@ -97,6 +98,14 @@ const router = createBrowserRouter([
             element: (
               <ProtectedRoute allowedRoles={["administrador", "bodeguero"]}>
                 <HistorialInsumos />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "mis-insumos",
+            element: (
+              <ProtectedRoute allowedRoles={["empleado", "supervisor"]}>
+                <MisInsumos />
               </ProtectedRoute>
             ),
           },

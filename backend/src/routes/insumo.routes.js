@@ -9,6 +9,7 @@ import {
   entregarInsumos,
   reponerInsumos,
   getMovimientos,
+  getMisInsumos,
 } from "../controllers/insumo.controller.js";
 
 const router = Router();
@@ -20,5 +21,6 @@ router.put(    "/:id",           authMiddleware, updateInsumo);
 router.delete( "/:id",           authMiddleware, deleteInsumo);
 router.patch(  "/entregar",      authMiddleware, entregarInsumos);
 router.patch(  "/reponer",       authMiddleware, reponerInsumos);
+router.get(    "/mis-insumos",   authMiddleware, getMisInsumos);
 
 export default router;
